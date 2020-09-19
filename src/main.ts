@@ -14,9 +14,10 @@ async function bootstrap() {
   // app.setGlobalPrefix('v1');
 
   const options = new DocumentBuilder()
-    .setTitle('Cats example')
-    .setDescription('The cats API description')
+    .setTitle('Todo API')
+    .setDescription('The awesome todo API')
     .setVersion('1.0')
+    .addBearerAuth()
     .build();
   const document = SwaggerModule.createDocument(app, options);
   SwaggerModule.setup('api', app, document);
