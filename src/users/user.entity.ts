@@ -30,7 +30,7 @@ export class User {
   @Property({ onUpdate: () => new Date() })
   updatedAt: Date = new Date();
 
-  @OneToMany(() => Task, (task) => task.user, { eager: true })
+  @OneToMany(() => Task, (task) => task.user, { eager: true, hidden: true })
   tasks = new Collection<Task>(this);
 
   constructor(email: string, password: string) {

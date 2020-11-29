@@ -23,26 +23,31 @@ import { Task } from './task.entity';
 import { TasksService } from './tasks.service';
 
 @Controller('tasks')
+@UseGuards(JwtGuard)
 @ApiTags('tasks')
 @ApiBearerAuth()
 export class TasksController {
   constructor(private taskService: TasksService) {}
 
   @Get()
+  @UsePipes(ValidationPipe)
   getTasks(
     @Query(ValidationPipe) filterDto: GetTasksFilterDto,
+    @CurrentUser() user: User,
   ): Promise<Task[]> {
-    return this.taskService.getTasks(filterDto);
+    return this.taskService.getTasks(filterDto, user);
   }
 
   @Get(':id')
-  getTaskById(@Param('id', ParseIntPipe) id: number): Promise<Task> {
-    return this.taskService.getTaskById(id);
+  getTaskById(
+    @Param('id', ParseIntPipe) id: number,
+    @CurrentUser() user: User,
+  ): Promise<Task> {
+    return this.taskService.getTaskById(id, user);
   }
 
   @Post()
   @UsePipes(ValidationPipe)
-  @UseGuards(JwtGuard)
   createTask(
     @Body() createTaskDto: CreateTaskDto,
     @CurrentUser() user: User,
@@ -51,8 +56,11 @@ export class TasksController {
   }
 
   @Delete(':id')
-  deleteTask(@Param('id', ParseIntPipe) id: number): Promise<void> {
-    return this.taskService.deleteTask(id);
+  deleteTask(
+    @Param('id', ParseIntPipe) id: number,
+    @CurrentUser() user: User,
+  ): Promise<void> {
+    return this.taskService.deleteTask(id, user);
   }
 
   @Patch(':id/status')
@@ -60,7 +68,8 @@ export class TasksController {
   updateTaskStatus(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateTaskStatusDto: UpdateTaskStatusDto,
+    @CurrentUser() user: User,
   ): Promise<Task> {
-    return this.taskService.updateTaskStatus(id, updateTaskStatusDto);
+    return this.taskService.updateTaskStatus(id, updateTaskStatusDto, user);
   }
 }
