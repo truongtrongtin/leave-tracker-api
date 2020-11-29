@@ -20,7 +20,8 @@ export class AuthService {
   async signIn(signInDto: SignInDto): Promise<TokenDto> {
     const { email, password } = signInDto;
     const user = await this.userService.findByEmail(email);
-    if (!(await user.checkPassword(password))) {
+    const isRightPassword = await user.checkPassword(password);
+    if (!isRightPassword) {
       throw new BadRequestException(`Wrong password`);
     }
     const payload = { email: user.email };

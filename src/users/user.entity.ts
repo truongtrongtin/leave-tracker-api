@@ -1,12 +1,15 @@
 import {
   BeforeCreate,
+  Collection,
   Entity,
+  OneToMany,
   PrimaryKey,
   Property,
   Unique,
 } from '@mikro-orm/core';
 import { ApiHideProperty } from '@nestjs/swagger';
 import * as bcrypt from 'bcryptjs';
+import { Task } from 'tasks/task.entity';
 
 @Entity()
 export class User {
@@ -26,6 +29,9 @@ export class User {
 
   @Property({ onUpdate: () => new Date() })
   updatedAt: Date = new Date();
+
+  @OneToMany(() => Task, (task) => task.user, { eager: true })
+  tasks = new Collection<Task>(this);
 
   constructor(email: string, password: string) {
     this.email = email;

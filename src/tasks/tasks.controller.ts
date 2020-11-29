@@ -14,6 +14,8 @@ import {
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { JwtGuard } from 'auth/guards/jwt.guard';
+import { CurrentUser } from 'users/user.decorator';
+import { User } from 'users/user.entity';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { GetTasksFilterDto } from './dto/get-tasks-filter.dto';
 import { UpdateTaskStatusDto } from './dto/update-task-status.dto';
@@ -26,7 +28,6 @@ import { TasksService } from './tasks.service';
 export class TasksController {
   constructor(private taskService: TasksService) {}
 
-  @UseGuards(JwtGuard)
   @Get()
   getTasks(
     @Query(ValidationPipe) filterDto: GetTasksFilterDto,
@@ -41,8 +42,12 @@ export class TasksController {
 
   @Post()
   @UsePipes(ValidationPipe)
-  createTask(@Body() createTaskDto: CreateTaskDto): Promise<Task> {
-    return this.taskService.createTask(createTaskDto);
+  @UseGuards(JwtGuard)
+  createTask(
+    @Body() createTaskDto: CreateTaskDto,
+    @CurrentUser() user: User,
+  ): Promise<Task> {
+    return this.taskService.createTask(createTaskDto, user);
   }
 
   @Delete(':id')

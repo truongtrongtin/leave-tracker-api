@@ -1,4 +1,5 @@
-import { Entity, Enum, PrimaryKey, Property } from '@mikro-orm/core';
+import { Entity, Enum, ManyToOne, PrimaryKey, Property } from '@mikro-orm/core';
+import { User } from 'users/user.entity';
 
 @Entity()
 export class Task {
@@ -20,9 +21,13 @@ export class Task {
   @Property({ onUpdate: () => new Date() })
   updatedAt: Date = new Date();
 
-  constructor(title: string, description: string) {
+  @ManyToOne(() => User)
+  user: User;
+
+  constructor(title: string, description: string, user: User) {
     this.title = title;
     this.description = description;
+    this.user = user;
   }
 }
 
