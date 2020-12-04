@@ -1,11 +1,7 @@
 FROM node:alpine
-
 WORKDIR /app
-
 COPY package*.json ./
-
-RUN npm i
-
+RUN npm ci
 COPY . .
-
-EXPOSE ${SERVER_PORT}
+RUN npm run build
+CMD ["npm", "run", "start:prod"]

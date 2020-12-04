@@ -15,7 +15,7 @@ export class UsersService {
     private readonly userRepository: EntityRepository<User>,
   ) {}
 
-  async findAll() {
+  async findAll(): Promise<User[]> {
     return await this.userRepository.findAll();
   }
 
