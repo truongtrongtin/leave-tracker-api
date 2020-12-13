@@ -13,9 +13,9 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { JwtGuard } from 'auth/guards/jwt.guard';
-import { CurrentUser } from 'users/user.decorator';
-import { User } from 'users/user.entity';
+import { JwtGuard } from '../auth/guards/jwt.guard';
+import { CurrentUser } from '../users/user.decorator';
+import { User } from '../users/user.entity';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { GetTasksFilterDto } from './dto/get-tasks-filter.dto';
 import { UpdateTaskStatusDto } from './dto/update-task-status.dto';

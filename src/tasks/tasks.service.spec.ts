@@ -1,7 +1,7 @@
 import { EntityRepository } from '@mikro-orm/core';
 import { getRepositoryToken } from '@mikro-orm/nestjs';
 import { Test, TestingModule } from '@nestjs/testing';
-import { User } from 'users/user.entity';
+import { User } from '../users/user.entity';
 import { Task } from './task.entity';
 import { TasksService } from './tasks.service';
 

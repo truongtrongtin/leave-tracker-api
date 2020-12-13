@@ -1,5 +1,5 @@
 import { Entity, Enum, ManyToOne, PrimaryKey, Property } from '@mikro-orm/core';
-import { User } from 'users/user.entity';
+import { User } from '../users/user.entity';
 
 @Entity()
 export class Task {

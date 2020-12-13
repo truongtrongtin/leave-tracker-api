@@ -6,8 +6,8 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-import { SignUpDto } from 'auth/dto/sign-up.dto';
-import { User } from 'users/user.entity';
+import { SignUpDto } from './dto/sign-up.dto';
+import { User } from '../users/user.entity';
 import { AuthService } from './auth.service';
 import { SignInDto } from './dto/sign-in.dto';
 import { TokenDto } from './dto/token.dto';

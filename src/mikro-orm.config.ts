@@ -1,6 +1,4 @@
 import { Options } from '@mikro-orm/core';
-// https://github.com/mikro-orm/mikro-orm/issues/354
-import 'tsconfig-paths/register';
 
 const mikroOrmConfig: Options = {
   entities: ['dist/**/*.entity.js'],

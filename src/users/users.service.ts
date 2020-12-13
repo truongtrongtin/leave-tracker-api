@@ -5,7 +5,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { SignUpDto } from 'auth/dto/sign-up.dto';
+import { SignUpDto } from '../auth/dto/sign-up.dto';
 import { User } from './user.entity';
 
 @Injectable()

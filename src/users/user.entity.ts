@@ -9,7 +9,7 @@ import {
 } from '@mikro-orm/core';
 import { ApiHideProperty } from '@nestjs/swagger';
 import * as bcrypt from 'bcryptjs';
-import { Task } from 'tasks/task.entity';
+import { Task } from '../tasks/task.entity';
 
 @Entity()
 export class User {
