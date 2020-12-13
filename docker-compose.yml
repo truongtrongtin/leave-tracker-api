@@ -1,7 +1,9 @@
 version: '3'
 services:
   nest:
-    build: .
+    build:
+      context: .
+      target: development
     container_name: nest
     volumes:
       - .:/app
