@@ -44,7 +44,7 @@
     "@nestjs/testing": "^7.6.1",
     "@types/bcryptjs": "^2.4.2",
     "@types/jest": "26.0.19",
-    "@types/node": "^14.14.12",
+    "@types/node": "^14.14.13",
     "@types/supertest": "^2.0.10",
     "@typescript-eslint/eslint-plugin": "4.9.1",
     "@typescript-eslint/parser": "4.9.1",
@@ -70,10 +70,9 @@
       "@typescript-eslint/eslint-plugin"
     ],
     "extends": [
-      "plugin:@typescript-eslint/eslint-recommended",
       "plugin:@typescript-eslint/recommended",
-      "prettier",
-      "prettier/@typescript-eslint"
+      "prettier/@typescript-eslint",
+      "plugin:prettier/recommended"
     ],
     "root": true,
     "env": {
@@ -96,12 +95,16 @@
       "ts"
     ],
     "rootDir": "src",
-    "testRegex": ".spec.ts$",
+    "testRegex": ".*\\.spec\\.ts$",
     "transform": {
       "^.+\\.(t|j)s$": "ts-jest"
     },
     "coverageDirectory": "../coverage",
-    "testEnvironment": "node"
+    "testEnvironment": "node",
+    "moduleDirectories": [
+      "node_modules",
+      "src"
+    ]
   },
   "mikro-orm": {
     "useTsNode": true,
