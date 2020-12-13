@@ -13,7 +13,7 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { JwtGuard } from '../auth/guards/jwt.guard';
+import { JwtGuard } from '../auth/jwt.guard';
 import { CurrentUser } from '../users/user.decorator';
 import { User } from '../users/user.entity';
 import { CreateTaskDto } from './dto/create-task.dto';
