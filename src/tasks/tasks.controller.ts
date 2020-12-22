@@ -12,8 +12,8 @@ import {
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { JwtGuard } from '../auth/jwt.guard';
+import { ApiTags } from '@nestjs/swagger';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { CurrentUser } from '../users/user.decorator';
 import { User } from '../users/user.entity';
 import { CreateTaskDto } from './dto/create-task.dto';
@@ -23,9 +23,8 @@ import { Task } from './task.entity';
 import { TasksService } from './tasks.service';
 
 @Controller('tasks')
-@UseGuards(JwtGuard)
+@UseGuards(JwtAuthGuard)
 @ApiTags('tasks')
-@ApiBearerAuth()
 export class TasksController {
   constructor(private taskService: TasksService) {}
 

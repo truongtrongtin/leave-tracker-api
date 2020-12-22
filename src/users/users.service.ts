@@ -1,12 +1,12 @@
-import { EntityRepository } from '@mikro-orm/core';
+import { EntityRepository } from '@mikro-orm/postgresql';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import {
   BadRequestException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { SignUpDto } from '../auth/dto/sign-up.dto';
 import { User } from './user.entity';
+import * as bcrypt from 'bcryptjs';
 
 @Injectable()
 export class UsersService {
@@ -27,9 +27,24 @@ export class UsersService {
     return user;
   }
 
-  async create(signUpDto: SignUpDto): Promise<User> {
-    const { email, password } = signUpDto;
+  async findById(userId: number): Promise<User> {
+    const user = await this.userRepository.findOne(userId);
+    if (!user) {
+      throw new NotFoundException(`User is not found`);
+    }
+    return user;
+  }
 
+  async getAuthenticatedUser(email: string, password: string): Promise<User> {
+    const user = await this.findByEmail(email);
+    const isRightPassword = await user.checkPassword(password);
+    if (!isRightPassword) {
+      throw new BadRequestException(`Wrong password`);
+    }
+    return user;
+  }
+
+  async create(email: string, password: string): Promise<User> {
     const exists = await this.userRepository.count({ email });
     if (exists > 0) {
       throw new BadRequestException('email existed');
@@ -37,5 +52,21 @@ export class UsersService {
     const user = new User(email, password);
     await this.userRepository.persistAndFlush(user);
     return user;
+  }
+
+  async setCurrentRefreshToken(
+    refreshToken: string,
+    userId: number,
+  ): Promise<void> {
+    const currentHashedRefreshToken = await bcrypt.hash(refreshToken, 10);
+    const query = this.userRepository.createQueryBuilder('t');
+    query.update({ currentHashedRefreshToken }).where(userId);
+    await query.getResultList();
+  }
+
+  async removeRefreshToken(userId: number) {
+    const query = this.userRepository.createQueryBuilder('t');
+    query.update({ currentHashedRefreshToken: null }).where(userId);
+    await query.getResultList();
   }
 }

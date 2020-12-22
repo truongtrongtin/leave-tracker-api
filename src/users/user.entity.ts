@@ -22,7 +22,11 @@ export class User {
 
   @Property({ hidden: true })
   @ApiHideProperty()
-  password: string;
+  hashedPassword: string;
+
+  @Property({ hidden: true, nullable: true })
+  @ApiHideProperty()
+  currentHashedRefreshToken?: string;
 
   @Property()
   createdAt: Date = new Date();
@@ -30,20 +34,20 @@ export class User {
   @Property({ onUpdate: () => new Date() })
   updatedAt: Date = new Date();
 
-  @OneToMany(() => Task, (task) => task.user, { eager: true, hidden: true })
+  @OneToMany(() => Task, (task) => task.user, { hidden: true })
   tasks = new Collection<Task>(this);
 
   constructor(email: string, password: string) {
     this.email = email;
-    this.password = password;
+    this.hashedPassword = password;
   }
 
   @BeforeCreate()
   async setPassword(): Promise<void> {
-    this.password = await bcrypt.hash(this.password, 10);
+    this.hashedPassword = await bcrypt.hash(this.hashedPassword, 10);
   }
 
   async checkPassword(plainPassword: string): Promise<boolean> {
-    return await bcrypt.compare(plainPassword, this.password);
+    return await bcrypt.compare(plainPassword, this.hashedPassword);
   }
 }

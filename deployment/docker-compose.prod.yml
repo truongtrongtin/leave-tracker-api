@@ -45,7 +45,15 @@ services:
   #     - web-root:/var/www/html
   #   depends_on:
   #     - nginx
-  #   command: certonly --webroot --webroot-path=/var/www/html --email truongtrongtin0305@gmail.com --agree-tos --no-eff-email --force-renewal -d tintruong.ga  -d www.tintruong.ga
+  #   command: |
+  #     certonly --webroot \
+  #       --webroot-path=/var/www/html \
+  #       --email truongtrongtin0305@gmail.com \
+  #       --agree-tos \
+  #       --no-eff-email \
+  #       --force-renewal \
+  #       -d tintruong.ga \
+  #       -d www.tintruong.ga
 
 volumes:
   postgres:

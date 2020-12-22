@@ -30,7 +30,7 @@ export class TasksService {
       ]);
     }
 
-    return await query.getResult();
+    return await query.getResultList();
   }
 
   async getTaskById(id: number, user: User): Promise<Task> {

@@ -5,6 +5,7 @@ import {
 } from '@nestjs/platform-fastify';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
+import fastifyCookie from 'fastify-cookie';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(
@@ -12,16 +13,20 @@ async function bootstrap() {
     new FastifyAdapter(),
   );
   // app.setGlobalPrefix('v1');
+  app.enableCors({
+    origin: ['http://localhost:3000', 'https://www.tintruong.ga'],
+    credentials: true,
+  });
+  app.register(fastifyCookie);
 
   const options = new DocumentBuilder()
     .setTitle('Todo API')
     .setDescription('The awesome todo API')
     .setVersion('1.0')
-    .addBearerAuth()
     .build();
   const document = SwaggerModule.createDocument(app, options);
-  SwaggerModule.setup('api', app, document);
+  SwaggerModule.setup('doc', app, document);
 
-  await app.listen(+(process.env.PORT || 3001), '0.0.0.0');
+  await app.listen(process.env.PORT!, '0.0.0.0');
 }
 bootstrap();

@@ -1,13 +1,6 @@
 ## Description
 
-Simple todo app with NestJs framework
-
-https://tintruong.ga/api
-
-```
-username: admin
-password: admin
-```
+Simple todo api with NestJs framework
 
 ## Running the app
 
