@@ -19,6 +19,7 @@ import { FastifyReply } from 'fastify';
 import { JwtAuthGuard } from './jwt-auth.guard';
 import { JwtRefreshGuard } from './jwt-refresh.guard';
 import { UsersService } from 'src/users/users.service';
+import { MailerService } from '@nestjs-modules/mailer';
 
 @Controller('auth')
 @ApiTags('auth')
@@ -26,6 +27,7 @@ export class AuthController {
   constructor(
     private readonly authService: AuthService,
     private readonly usersService: UsersService,
+    private readonly mailerService: MailerService,
   ) {}
 
   @Post('signup')
@@ -33,6 +35,12 @@ export class AuthController {
   async signUp(@Body() signUpDto: SignUpDto): Promise<void> {
     const { email, password } = signUpDto;
     await this.usersService.create(email, password);
+    this.mailerService.sendMail({
+      to: email,
+      subject: 'Welcome to HRM',
+      template: 'hello',
+      context: { email },
+    });
   }
 
   @Post('login')

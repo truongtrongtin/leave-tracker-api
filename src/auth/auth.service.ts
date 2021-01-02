@@ -7,8 +7,8 @@ import { UsersService } from 'src/users/users.service';
 @Injectable()
 export class AuthService {
   constructor(
-    private jwtService: JwtService,
-    private userService: UsersService,
+    private readonly jwtService: JwtService,
+    private readonly userService: UsersService,
   ) {}
 
   async getAccessToken(userId: number): Promise<string> {
