@@ -33,8 +33,8 @@ export class AuthController {
   @Post('signup')
   @UsePipes(ValidationPipe)
   async signUp(@Body() signUpDto: SignUpDto): Promise<void> {
-    const { email, password } = signUpDto;
-    await this.usersService.create(email, password);
+    const { email, password, firstName, lastName } = signUpDto;
+    await this.usersService.create({ email, password, firstName, lastName });
     this.mailerService.sendMail({
       to: email,
       subject: 'Welcome to HRM',

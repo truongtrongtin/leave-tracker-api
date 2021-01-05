@@ -6,7 +6,12 @@ import { User } from '../users/user.entity';
 import { Task } from './task.entity';
 import { TasksService } from './tasks.service';
 
-const mockUser = new User('user1@gmail.com', 'password');
+const mockUser = new User({
+  email: 'user1@gmail.com',
+  password: 'password',
+  firstName: 'Tin',
+  lastName: 'Truong',
+});
 const mockTask = new Task('task 1', 'description 1', mockUser);
 
 describe('TasksService', () => {

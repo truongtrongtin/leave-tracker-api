@@ -20,6 +20,12 @@ export class User {
   @Unique()
   email: string;
 
+  @Property()
+  firstName: string;
+
+  @Property()
+  lastName: string;
+
   @Property({ hidden: true })
   @ApiHideProperty()
   hashedPassword: string;
@@ -37,9 +43,21 @@ export class User {
   @OneToMany(() => Task, (task) => task.user, { hidden: true })
   tasks = new Collection<Task>(this);
 
-  constructor(email: string, password: string) {
+  constructor({
+    email,
+    password,
+    firstName,
+    lastName,
+  }: {
+    email: string;
+    password: string;
+    firstName: string;
+    lastName: string;
+  }) {
     this.email = email;
     this.hashedPassword = password;
+    this.firstName = firstName;
+    this.lastName = lastName;
   }
 
   @BeforeCreate()

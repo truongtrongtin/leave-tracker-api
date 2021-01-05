@@ -7,6 +7,7 @@ import {
 } from '@nestjs/common';
 import { User } from './user.entity';
 import * as bcrypt from 'bcryptjs';
+import { SignUpDto } from 'src/auth/dto/sign-up.dto';
 
 @Injectable()
 export class UsersService {
@@ -44,12 +45,22 @@ export class UsersService {
     return user;
   }
 
-  async create(email: string, password: string): Promise<User> {
+  async create({
+    email,
+    password,
+    firstName,
+    lastName,
+  }: {
+    email: string;
+    password: string;
+    firstName: string;
+    lastName: string;
+  }): Promise<User> {
     const exists = await this.userRepository.count({ email });
     if (exists > 0) {
       throw new BadRequestException('email existed');
     }
-    const user = new User(email, password);
+    const user = new User({ email, password, firstName, lastName });
     await this.userRepository.persistAndFlush(user);
     return user;
   }
