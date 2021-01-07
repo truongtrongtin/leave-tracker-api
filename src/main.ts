@@ -6,6 +6,7 @@ import {
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import fastifyCookie from 'fastify-cookie';
+import fastifyMultipart from 'fastify-multipart';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(
@@ -14,10 +15,12 @@ async function bootstrap() {
   );
   // app.setGlobalPrefix('v1');
   app.enableCors({
-    origin: ['http://localhost:3000', 'https://www.tintruong.ga'],
+    origin: true,
     credentials: true,
+    maxAge: 86400,
   });
   app.register(fastifyCookie);
+  app.register(fastifyMultipart);
 
   const options = new DocumentBuilder()
     .setTitle('Todo API')

@@ -12,7 +12,11 @@ const mockUser = new User({
   firstName: 'Tin',
   lastName: 'Truong',
 });
-const mockTask = new Task('task 1', 'description 1', mockUser);
+const mockTask = new Task({
+  title: 'task 1',
+  description: 'description 1',
+  user: mockUser,
+});
 
 describe('TasksService', () => {
   let tasksService: TasksService;
@@ -35,20 +39,18 @@ describe('TasksService', () => {
     taskRepository = module.get(getRepositoryToken(Task));
   });
 
-  describe('getTaskById', () => {
+  describe('getById', () => {
     it('should call taskRepository.findOne() and sucessfully return the task', () => {
       const repoSpy = jest.spyOn(taskRepository, 'findOne');
-      expect(tasksService.getTaskById(1, mockUser)).resolves.toEqual(mockTask);
-      expect(repoSpy).toBeCalledWith({ id: 1, user: mockUser });
+      expect(tasksService.getById(1)).resolves.toEqual(mockTask);
+      expect(repoSpy).toBeCalledWith(1);
     });
 
     it('should throw an error as task is not found', () => {
       jest
         .spyOn(taskRepository, 'findOne')
         .mockRejectedValueOnce(new NotFoundException());
-      expect(tasksService.getTaskById(2, mockUser)).rejects.toThrow(
-        NotFoundException,
-      );
+      expect(tasksService.getById(2)).rejects.toThrow(NotFoundException);
     });
   });
 });

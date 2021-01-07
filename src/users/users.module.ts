@@ -1,12 +1,13 @@
-import { Global, Module } from '@nestjs/common';
+import { forwardRef, Global, Module } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { UsersController } from './users.controller';
 import { MikroOrmModule } from '@mikro-orm/nestjs';
 import { User } from './user.entity';
+import { AuthModule } from '../auth/auth.module';
 
 @Global()
 @Module({
-  imports: [MikroOrmModule.forFeature([User])],
+  imports: [MikroOrmModule.forFeature([User]), forwardRef(() => AuthModule)],
   controllers: [UsersController],
   providers: [UsersService],
   exports: [UsersService],

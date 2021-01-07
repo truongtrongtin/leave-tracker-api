@@ -5,10 +5,11 @@ import { AppService } from './app.service';
 import { TasksModule } from './tasks/tasks.module';
 import { AuthModule } from './auth/auth.module';
 import { MailModule } from './mail/mail.module';
+import { LeavesModule } from './leaves/leaves.module';
 
 @Module({
   controllers: [AppController],
   providers: [AppService],
-  imports: [MikroOrmModule.forRoot(), TasksModule, AuthModule, MailModule],
+  imports: [MikroOrmModule.forRoot(), TasksModule, AuthModule, MailModule, LeavesModule],
 })
 export class AppModule {}

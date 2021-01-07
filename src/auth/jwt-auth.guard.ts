@@ -17,7 +17,7 @@ export class JwtAuthGuard implements CanActivate {
       const req = context.switchToHttp().getRequest();
       const token = req.cookies['Authentication'];
       const payload: TokenPayload = this.authService.verifyAccessToken(token);
-      const user = this.userService.findById(payload.userId);
+      const user = this.userService.findById(payload.id);
       if (!user) {
         return false;
       }

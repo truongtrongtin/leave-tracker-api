@@ -21,7 +21,7 @@ export class LocalGuard implements CanActivate {
     try {
       const req = context.switchToHttp().getRequest();
       const { email, password } = req.body;
-      const user = this.userService.getAuthenticatedUser(email, password);
+      const user = this.userService.getAuthenticated(email, password);
       if (!user) {
         return false;
       }

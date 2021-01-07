@@ -2,20 +2,19 @@ import {
   BeforeCreate,
   Collection,
   Entity,
+  Enum,
   OneToMany,
-  PrimaryKey,
   Property,
   Unique,
 } from '@mikro-orm/core';
 import { ApiHideProperty } from '@nestjs/swagger';
 import * as bcrypt from 'bcryptjs';
+import { Leave } from '../leaves/leave.entity';
+import { BaseEntity } from '../base.entity';
 import { Task } from '../tasks/task.entity';
 
 @Entity()
-export class User {
-  @PrimaryKey()
-  id!: number;
-
+export class User extends BaseEntity {
   @Property()
   @Unique()
   email: string;
@@ -32,16 +31,19 @@ export class User {
 
   @Property({ hidden: true, nullable: true })
   @ApiHideProperty()
-  currentHashedRefreshToken?: string;
+  hashedRefreshToken?: string;
 
-  @Property()
-  createdAt: Date = new Date();
-
-  @Property({ onUpdate: () => new Date() })
-  updatedAt: Date = new Date();
-
-  @OneToMany(() => Task, (task) => task.user, { hidden: true })
+  @OneToMany(() => Task, (task) => task.user)
   tasks = new Collection<Task>(this);
+
+  @Enum(() => Role)
+  role: Role = Role.MEMBER;
+
+  @OneToMany(() => Leave, (leave) => leave.user)
+  leaves = new Collection<Leave>(this);
+
+  @Property({ nullable: true })
+  avatar?: string;
 
   constructor({
     email,
@@ -54,6 +56,7 @@ export class User {
     firstName: string;
     lastName: string;
   }) {
+    super();
     this.email = email;
     this.hashedPassword = password;
     this.firstName = firstName;
@@ -68,4 +71,9 @@ export class User {
   async checkPassword(plainPassword: string): Promise<boolean> {
     return await bcrypt.compare(plainPassword, this.hashedPassword);
   }
+}
+
+export enum Role {
+  MEMBER = 'MEMBER',
+  ADMIN = 'ADMIN',
 }

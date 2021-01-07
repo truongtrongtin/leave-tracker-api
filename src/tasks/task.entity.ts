@@ -1,11 +1,9 @@
-import { Entity, Enum, ManyToOne, PrimaryKey, Property } from '@mikro-orm/core';
+import { Entity, Enum, ManyToOne, Property } from '@mikro-orm/core';
+import { BaseEntity } from '../base.entity';
 import { User } from '../users/user.entity';
 
 @Entity()
-export class Task {
-  @PrimaryKey()
-  id!: number;
-
+export class Task extends BaseEntity {
   @Property({ nullable: true })
   title?: string;
 
@@ -15,16 +13,19 @@ export class Task {
   @Enum(() => TaskStatus)
   status: TaskStatus = TaskStatus.OPEN;
 
-  @Property()
-  createdAt: Date = new Date();
-
-  @Property({ onUpdate: () => new Date() })
-  updatedAt: Date = new Date();
-
   @ManyToOne(() => User)
   user: User;
 
-  constructor(title: string, description: string, user: User) {
+  constructor({
+    title,
+    description,
+    user,
+  }: {
+    title: string;
+    description: string;
+    user: User;
+  }) {
+    super();
     this.title = title;
     this.description = description;
     this.user = user;

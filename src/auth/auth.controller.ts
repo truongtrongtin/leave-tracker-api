@@ -3,7 +3,7 @@ import {
   Controller,
   Get,
   Post,
-  Response,
+  Res,
   UseGuards,
   UsePipes,
   ValidationPipe,
@@ -14,11 +14,11 @@ import { User } from '../users/user.entity';
 import { AuthService } from './auth.service';
 import { LogInDto } from './dto/log-in.dto';
 import { LocalGuard } from './local.guard';
-import { CurrentUser } from 'src/users/user.decorator';
+import { CurrentUser } from '../users/user.decorator';
 import { FastifyReply } from 'fastify';
 import { JwtAuthGuard } from './jwt-auth.guard';
 import { JwtRefreshGuard } from './jwt-refresh.guard';
-import { UsersService } from 'src/users/users.service';
+import { UsersService } from '../users/users.service';
 import { MailerService } from '@nestjs-modules/mailer';
 
 @Controller('auth')
@@ -32,15 +32,20 @@ export class AuthController {
 
   @Post('signup')
   @UsePipes(ValidationPipe)
-  async signUp(@Body() signUpDto: SignUpDto): Promise<void> {
+  async signUp(@Body() signUpDto: SignUpDto): Promise<User> {
     const { email, password, firstName, lastName } = signUpDto;
-    await this.usersService.create({ email, password, firstName, lastName });
-    this.mailerService.sendMail({
-      to: email,
-      subject: 'Welcome to HRM',
-      template: 'hello',
-      context: { email },
+    return await this.usersService.create({
+      email,
+      password,
+      firstName,
+      lastName,
     });
+    // this.mailerService.sendMail({
+    //   to: email,
+    //   subject: 'Welcome to HRM',
+    //   template: 'hello',
+    //   context: { email },
+    // });
   }
 
   @Post('login')
@@ -49,44 +54,57 @@ export class AuthController {
   async logIn(
     @Body() logInDto: LogInDto,
     @CurrentUser() currentUser: User,
-    @Response({ passthrough: true }) response: FastifyReply,
+    @Res({ passthrough: true }) reply: FastifyReply,
   ): Promise<void> {
     const accessToken = await this.authService.getAccessToken(currentUser.id);
     const refreshToken = await this.authService.getRefreshToken(currentUser.id);
-    response
+    reply
       .setCookie('Authentication', accessToken, {
         path: '/',
         httpOnly: true,
         maxAge: +process.env.JWT_ACCESS_TOKEN_EXPIRATION_TIME!,
+        ...(process.env.NODE_ENV === 'production' && {
+          sameSite: 'none',
+          secure: true,
+        }),
       })
       .setCookie('Refresh', refreshToken, {
         path: '/',
         httpOnly: true,
         maxAge: +process.env.JWT_REFRESH_TOKEN_EXPIRATION_TIME!,
+        ...(process.env.NODE_ENV === 'production' && {
+          sameSite: 'none',
+          secure: true,
+        }),
       });
-    await this.usersService.setCurrentRefreshToken(
-      refreshToken,
-      currentUser.id,
-    );
+    await this.usersService.setRefreshToken(refreshToken, currentUser.id);
   }
 
   @Post('logout')
   @UseGuards(JwtAuthGuard)
   async logOut(
     @CurrentUser() currentUser: User,
-    @Response({ passthrough: true }) response: FastifyReply,
+    @Res({ passthrough: true }) reply: FastifyReply,
   ): Promise<void> {
     await this.usersService.removeRefreshToken(currentUser.id);
-    response
+    reply
       .setCookie('Authentication', '', {
         path: '/',
         httpOnly: true,
         maxAge: 0,
+        ...(process.env.NODE_ENV === 'production' && {
+          sameSite: 'none',
+          secure: true,
+        }),
       })
       .setCookie('Refresh', '', {
         path: '/',
         httpOnly: true,
         maxAge: 0,
+        ...(process.env.NODE_ENV === 'production' && {
+          sameSite: 'none',
+          secure: true,
+        }),
       });
   }
 
@@ -94,13 +112,17 @@ export class AuthController {
   @UseGuards(JwtRefreshGuard)
   async refresh(
     @CurrentUser() currentUser: User,
-    @Response({ passthrough: true }) response: FastifyReply,
+    @Res({ passthrough: true }) reply: FastifyReply,
   ): Promise<void> {
     const accessToken = await this.authService.getAccessToken(currentUser.id);
-    response.setCookie('Authentication', accessToken, {
+    reply.setCookie('Authentication', accessToken, {
       path: '/',
       httpOnly: true,
       maxAge: +process.env.JWT_ACCESS_TOKEN_EXPIRATION_TIME!,
+      ...(process.env.NODE_ENV === 'production' && {
+        sameSite: 'none',
+        secure: true,
+      }),
     });
   }
 
