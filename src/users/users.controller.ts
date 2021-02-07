@@ -1,11 +1,10 @@
 import {
   Body,
   Controller,
-  Delete,
   Get,
   Param,
   ParseIntPipe,
-  Patch,
+  Post,
   Req,
   UseGuards,
 } from '@nestjs/common';
@@ -34,7 +33,7 @@ export class UsersController {
     return this.usersService.getByEmail(email);
   }
 
-  @Patch(':id')
+  @Post(':id/edit')
   update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateUserDto: UpdateUserDto,
@@ -42,7 +41,7 @@ export class UsersController {
     return this.usersService.update(id, updateUserDto);
   }
 
-  @Patch(':id/avatar')
+  @Post(':id/editAvatar')
   @ApiConsumes('multipart/form-data')
   @ApiBody({ type: AvatarUploadDto })
   updateAvatar(
@@ -52,7 +51,7 @@ export class UsersController {
     return this.usersService.updateAvatar(request, currentUser);
   }
 
-  @Delete(':id')
+  @Post(':id/delete')
   delete(@Param('id', ParseIntPipe) id: number): Promise<void> {
     return this.usersService.delete(id);
   }

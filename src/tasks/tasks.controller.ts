@@ -1,11 +1,9 @@
 import {
   Body,
   Controller,
-  Delete,
   Get,
   Param,
   ParseIntPipe,
-  Patch,
   Post,
   Query,
   UseGuards,
@@ -42,7 +40,7 @@ export class TasksController {
     return this.taskService.getById(id);
   }
 
-  @Post()
+  @Post('/add')
   @UsePipes(ValidationPipe)
   create(
     @Body() createTaskDto: CreateTaskDto,
@@ -51,12 +49,12 @@ export class TasksController {
     return this.taskService.create(createTaskDto, user);
   }
 
-  @Delete(':id')
+  @Post(':id/delete')
   delete(@Param('id', ParseIntPipe) id: number): Promise<void> {
     return this.taskService.delete(id);
   }
 
-  @Patch(':id/status')
+  @Post(':id/editStatus')
   @UsePipes(ValidationPipe)
   updateStatus(
     @Param('id', ParseIntPipe) id: number,

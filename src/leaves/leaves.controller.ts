@@ -1,25 +1,23 @@
 import {
+  Body,
   Controller,
   Get,
-  Post,
-  Body,
+  HttpCode,
   Param,
-  Delete,
+  ParseIntPipe,
+  Post,
+  UseGuards,
   UsePipes,
   ValidationPipe,
-  ParseIntPipe,
-  UseGuards,
-  Patch,
 } from '@nestjs/common';
-import { LeavesService } from './leaves.service';
-import { CreateLeaveDto } from './dto/create-leave.dto';
-import { UpdateLeaveDto } from './dto/update-leave.dto';
-import { Leave } from './leave.entity';
 import { ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { CurrentUser } from 'src/users/user.decorator';
 import { User } from 'src/users/user.entity';
-import { UpdateLeaveStatusDto } from './dto/update-leave-status.dto';
+import { CreateLeaveDto } from './dto/create-leave.dto';
+import { UpdateLeaveDto } from './dto/update-leave.dto';
+import { Leave } from './leave.entity';
+import { LeavesService } from './leaves.service';
 
 @Controller('leaves')
 @ApiTags('leaves')
@@ -27,7 +25,7 @@ import { UpdateLeaveStatusDto } from './dto/update-leave-status.dto';
 export class LeavesController {
   constructor(private readonly leavesService: LeavesService) {}
 
-  @Post()
+  @Post('add')
   @UsePipes(ValidationPipe)
   create(
     @Body() createLeaveDto: CreateLeaveDto,
@@ -46,7 +44,8 @@ export class LeavesController {
     return this.leavesService.findOneById(id);
   }
 
-  @Patch(':id')
+  @Post(':id/edit')
+  @HttpCode(200)
   @UsePipes(ValidationPipe)
   update(
     @Param('id', ParseIntPipe) id: number,
@@ -55,16 +54,8 @@ export class LeavesController {
     return this.leavesService.update(id, updateLeaveDto);
   }
 
-  @Patch(':id/status')
-  @UsePipes(ValidationPipe)
-  updateStatus(
-    @Param('id', ParseIntPipe) id: number,
-    @Body() updateLeaveStatusDto: UpdateLeaveStatusDto,
-  ): Promise<Leave> {
-    return this.leavesService.updateStatus(id, updateLeaveStatusDto.status);
-  }
-
-  @Delete(':id')
+  @Post(':id/delete')
+  @HttpCode(200)
   delete(@Param('id') id: number): Promise<void> {
     return this.leavesService.delete(id);
   }
