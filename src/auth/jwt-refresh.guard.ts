@@ -14,7 +14,6 @@ export class JwtRefreshGuard implements CanActivate {
       const token = req.cookies['Refresh'];
       if (!token) return false;
       const user = this.authService.verifyRefreshToken(token);
-      if (!user) return false;
       req.user = user;
       return true;
     } catch (e) {

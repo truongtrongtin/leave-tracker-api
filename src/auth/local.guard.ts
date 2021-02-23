@@ -1,12 +1,7 @@
-import {
-  BadRequestException,
-  CanActivate,
-  ExecutionContext,
-  Injectable,
-} from '@nestjs/common';
+import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { Observable } from 'rxjs';
-import { AuthService } from './auth.service';
 import { UsersService } from '../users/users.service';
+import { AuthService } from './auth.service';
 
 @Injectable()
 export class LocalGuard implements CanActivate {

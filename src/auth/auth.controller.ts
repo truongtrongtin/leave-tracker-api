@@ -14,7 +14,7 @@ import { User } from '../users/user.entity';
 import { AuthService } from './auth.service';
 import { LogInDto } from './dto/log-in.dto';
 import { LocalGuard } from './local.guard';
-import { CurrentUser } from '../users/user.decorator';
+import { CurrentUser } from '../decorators/current-user.decorator';
 import { FastifyReply } from 'fastify';
 import { JwtAuthGuard } from './jwt-auth.guard';
 import { JwtRefreshGuard } from './jwt-refresh.guard';

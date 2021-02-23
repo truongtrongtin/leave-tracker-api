@@ -13,7 +13,7 @@ import { FastifyRequest } from 'fastify';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { AvatarUploadDto } from './dto/avatar-upload.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { CurrentUser } from './user.decorator';
+import { CurrentUser } from '../decorators/current-user.decorator';
 import { User } from './user.entity';
 import { UsersService } from './users.service';
 

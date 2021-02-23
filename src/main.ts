@@ -11,7 +11,7 @@ import fastifyMultipart from 'fastify-multipart';
 async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(
     AppModule,
-    new FastifyAdapter(),
+    new FastifyAdapter({ trustProxy: true }),
   );
   // app.setGlobalPrefix('v1');
   app.enableCors({

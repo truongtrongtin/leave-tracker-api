@@ -26,7 +26,7 @@ export class UsersService {
   async getByEmail(email: string): Promise<User> {
     const user = await this.userRepository.findOne({ email });
     if (!user) {
-      throw new NotFoundException(`User is not found`);
+      throw new NotFoundException(`user is not found`);
     }
     return user;
   }
@@ -34,7 +34,7 @@ export class UsersService {
   async findById(id: number): Promise<User> {
     const user = await this.userRepository.findOne(id);
     if (!user) {
-      throw new NotFoundException(`User is not found`);
+      throw new NotFoundException(`user is not found`);
     }
     return user;
   }
@@ -43,7 +43,7 @@ export class UsersService {
     const user = await this.getByEmail(email);
     const isRightPassword = await user.checkPassword(password);
     if (!isRightPassword) {
-      throw new BadRequestException(`Wrong password`);
+      throw new BadRequestException(`wrong password`);
     }
     return user;
   }

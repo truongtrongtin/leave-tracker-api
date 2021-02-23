@@ -6,18 +6,22 @@ import {
   Param,
   ParseIntPipe,
   Post,
+  Query,
   UseGuards,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
-import { CurrentUser } from 'src/users/user.decorator';
+import { Pagination } from 'src/pagination';
+import { CurrentUser } from 'src/decorators/current-user.decorator';
 import { User } from 'src/users/user.entity';
 import { CreateLeaveDto } from './dto/create-leave.dto';
+import { GetLeavesFilterDto } from './dto/get-leaves-filter.dto';
 import { UpdateLeaveDto } from './dto/update-leave.dto';
 import { Leave } from './leave.entity';
 import { LeavesService } from './leaves.service';
+import { FullUrl } from 'src/decorators/full-url.decorator';
 
 @Controller('leaves')
 @ApiTags('leaves')
@@ -35,8 +39,16 @@ export class LeavesController {
   }
 
   @Get()
-  getAll(@CurrentUser() currentUser: User): Promise<Leave[]> {
-    return this.leavesService.findAllByUser(currentUser);
+  getAll(
+    @Query(ValidationPipe) filterDto: GetLeavesFilterDto,
+    @CurrentUser() currentUser: User,
+    @FullUrl() fullUrl: string,
+  ): Promise<Pagination<Leave>> {
+    return this.leavesService.getAll(currentUser, {
+      limit: filterDto.limit,
+      page: filterDto.page,
+      route: fullUrl,
+    });
   }
 
   @Get(':id')
@@ -49,9 +61,10 @@ export class LeavesController {
   @UsePipes(ValidationPipe)
   update(
     @Param('id', ParseIntPipe) id: number,
+    @CurrentUser() currentUser: User,
     @Body() updateLeaveDto: UpdateLeaveDto,
   ): Promise<Leave> {
-    return this.leavesService.update(id, updateLeaveDto);
+    return this.leavesService.update(id, currentUser, updateLeaveDto);
   }
 
   @Post(':id/delete')

@@ -1,4 +1,5 @@
-import { IsNotEmpty } from 'class-validator';
+import { IsEnum, IsNotEmpty, IsOptional } from 'class-validator';
+import { Role } from '../user.entity';
 
 export class UpdateUserDto {
   @IsNotEmpty()
@@ -6,4 +7,8 @@ export class UpdateUserDto {
 
   @IsNotEmpty()
   lastName!: string;
+
+  @IsOptional()
+  @IsEnum(Role)
+  role?: Role;
 }
