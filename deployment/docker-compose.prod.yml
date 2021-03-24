@@ -20,6 +20,7 @@ services:
       - 5432:5432
     volumes:
       - postgres:/var/lib/postgresql/data
+
   nginx:
     image: nginx:alpine
     container_name: nginx
@@ -45,15 +46,7 @@ services:
   #     - web-root:/var/www/html
   #   depends_on:
   #     - nginx
-  #   command: |
-  #     certonly --webroot \
-  #       --webroot-path=/var/www/html \
-  #       --email truongtrongtin0305@gmail.com \
-  #       --agree-tos \
-  #       --no-eff-email \
-  #       --force-renewal \
-  #       -d tintruong.ga \
-  #       -d www.tintruong.ga
+  #   command: certonly --webroot --webroot-path=/var/www/html --email truongtrongtin0305@gmail.com --agree-tos --no-eff-email --force-renewal -d api.tintruong.ga
 
 volumes:
   postgres:
@@ -63,7 +56,7 @@ volumes:
     driver: local
     driver_opts:
       type: none
-      device: /home/truongtrongtin0305/learn-nestjs/
+      device: /home/truongtrongtin0305/learn-nestjs/views
       o: bind
   dhparam:
     driver: local

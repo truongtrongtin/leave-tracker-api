@@ -52,8 +52,8 @@ export class AuthController {
   @UseGuards(LocalGuard)
   @UsePipes(ValidationPipe)
   async logIn(
-    @Body() logInDto: LogInDto,
     @CurrentUser() currentUser: User,
+    @Body() logInDto: LogInDto,
     @Res({ passthrough: true }) reply: FastifyReply,
   ): Promise<void> {
     const accessToken = await this.authService.getAccessToken(currentUser.id);
