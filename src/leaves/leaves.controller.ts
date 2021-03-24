@@ -39,16 +39,12 @@ export class LeavesController {
   }
 
   @Get()
-  getAll(
+  getMany(
     @Query(ValidationPipe) filterDto: GetLeavesFilterDto,
     @CurrentUser() currentUser: User,
     @FullUrl() fullUrl: string,
   ): Promise<Pagination<Leave>> {
-    return this.leavesService.getAll(currentUser, {
-      limit: filterDto.limit,
-      page: filterDto.page,
-      route: fullUrl,
-    });
+    return this.leavesService.getMany(currentUser, fullUrl, filterDto);
   }
 
   @Get(':id')

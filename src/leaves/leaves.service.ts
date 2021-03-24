@@ -8,8 +8,9 @@ import {
 } from '@nestjs/common';
 import { CaslAbilityFactory } from 'src/casl/casl-ability.factory';
 import { Pagination } from 'src/pagination';
-import { User } from 'src/users/user.entity';
+import { Role, User } from 'src/users/user.entity';
 import { CreateLeaveDto } from './dto/create-leave.dto';
+import { GetLeavesFilterDto } from './dto/get-leaves-filter.dto';
 import { UpdateLeaveDto } from './dto/update-leave.dto';
 import { Leave } from './leave.entity';
 
@@ -28,22 +29,27 @@ export class LeavesService {
     return leave;
   }
 
-  async getAll(
+  async getMany(
     user: User,
-    paginateOptions: { limit?: number; page?: number; route?: string },
+    route: string,
+    filterDto: GetLeavesFilterDto,
   ): Promise<Pagination<Leave>> {
     const ability = this.caslAbilityFactory.createForUser(user);
-    const { limit = 10, page = 1, route } = paginateOptions;
-    // const qb = this.leaveRepository.createQueryBuilder('a').select('a.*');
-    // if (userId) {
-    //   qb.andWhere({ user: filterDto.userId });
-    // }
-    // qb.populate()
-    // return qb.getResultList();
+    const {
+      limit = 10,
+      page = 1,
+      orderBy = 'createdAt',
+      order = QueryOrder.DESC,
+      reason,
+    } = filterDto;
+
     const [leaves, count] = await this.leaveRepository.findAndCount(
-      {},
       {
-        orderBy: { createdAt: QueryOrder.DESC },
+        ...(reason && { reason: { $like: `%${reason}%` } }),
+        ...(user.role === Role.MEMBER && { user }),
+      },
+      {
+        orderBy: { [orderBy]: order },
         limit: limit,
         offset: limit * (page - 1),
       },

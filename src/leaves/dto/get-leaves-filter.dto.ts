@@ -1,4 +1,5 @@
-import { IsOptional } from 'class-validator';
+import { QueryOrder } from '@mikro-orm/core';
+import { IsEnum, IsOptional } from 'class-validator';
 
 export class GetLeavesFilterDto {
   @IsOptional()
@@ -6,4 +7,14 @@ export class GetLeavesFilterDto {
 
   @IsOptional()
   page?: number;
+
+  @IsOptional()
+  orderBy?: string;
+
+  @IsOptional()
+  @IsEnum(QueryOrder)
+  order?: QueryOrder;
+
+  @IsOptional()
+  reason?: string;
 }

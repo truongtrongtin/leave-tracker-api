@@ -68,7 +68,7 @@ $ docker-compose restart nginx
 - Update database schema
 
 ```bash
-$ docker-compose exec nest npx mikro-orm schema:update -r
+$ docker exec nest npx mikro-orm schema:update -r
 ```
 
 - Enjoy your https site

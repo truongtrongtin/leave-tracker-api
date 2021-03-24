@@ -11,6 +11,13 @@ import { CaslModule } from './casl/casl.module';
 @Module({
   controllers: [AppController],
   providers: [AppService],
-  imports: [MikroOrmModule.forRoot(), TasksModule, AuthModule, MailModule, LeavesModule, CaslModule],
+  imports: [
+    MikroOrmModule.forRoot(),
+    TasksModule,
+    AuthModule,
+    MailModule,
+    LeavesModule,
+    CaslModule,
+  ],
 })
 export class AppModule {}
