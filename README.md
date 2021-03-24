@@ -34,9 +34,9 @@ Then go to http://localhost:3001/api
 ```
 DOCKERHUB_USERNAME
 DOCKERHUB_TOKEN
-SSH_HOST
-SSH_USERNAME
-SSH_KEY
+HOST
+USERNAME
+KEY
 ```
 
 - SSH into your VPS and make app folder
