@@ -44,10 +44,7 @@ export class LeavesService {
     } = filterDto;
 
     const [leaves, count] = await this.leaveRepository.findAndCount(
-      {
-        ...(reason && { reason: { $like: `%${reason}%` } }),
-        ...(user.role === Role.MEMBER && { user }),
-      },
+      {},
       {
         orderBy: { [orderBy]: order },
         limit: limit,
