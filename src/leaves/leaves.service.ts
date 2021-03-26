@@ -8,8 +8,7 @@ import {
 } from '@nestjs/common';
 import { CaslAbilityFactory } from 'src/casl/casl-ability.factory';
 import { Pagination } from 'src/pagination';
-import { Role, User } from 'src/users/user.entity';
-import { CreateLeaveDto } from './dto/create-leave.dto';
+import { User } from 'src/users/user.entity';
 import { GetLeavesFilterDto } from './dto/get-leaves-filter.dto';
 import { UpdateLeaveDto } from './dto/update-leave.dto';
 import { Leave } from './leave.entity';
@@ -22,8 +21,13 @@ export class LeavesService {
     private readonly caslAbilityFactory: CaslAbilityFactory,
   ) {}
 
-  async create(createLeaveDto: CreateLeaveDto, user: User): Promise<Leave> {
-    const leave = new Leave({ ...createLeaveDto, user });
+  async create(
+    startAt: Date,
+    endAt: Date,
+    reason: string,
+    user: User,
+  ): Promise<Leave> {
+    const leave = new Leave({ startAt, endAt, reason, user });
     await this.leaveRepository.persistAndFlush(leave);
     await this.leaveRepository.populate(leave, ['user']);
     return leave;

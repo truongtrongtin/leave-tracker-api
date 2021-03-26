@@ -10,7 +10,7 @@ import {
 } from '@nestjs/common';
 import { ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger';
 import { FastifyRequest } from 'fastify';
-import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { JwtAuthGuard } from '../guards/jwt-auth.guard';
 import { AvatarUploadDto } from './dto/avatar-upload.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { CurrentUser } from '../decorators/current-user.decorator';
