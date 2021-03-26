@@ -13,11 +13,11 @@ import { SignUpDto } from './dto/sign-up.dto';
 import { User } from '../users/user.entity';
 import { AuthService } from './auth.service';
 import { LogInDto } from './dto/log-in.dto';
-import { LocalGuard } from './local.guard';
+import { LocalGuard } from '../guards/local.guard';
 import { CurrentUser } from '../decorators/current-user.decorator';
 import { FastifyReply } from 'fastify';
-import { JwtAuthGuard } from './jwt-auth.guard';
-import { JwtRefreshGuard } from './jwt-refresh.guard';
+import { JwtAuthGuard } from '../guards/jwt-auth.guard';
+import { JwtRefreshGuard } from '../guards/jwt-refresh.guard';
 import { UsersService } from '../users/users.service';
 import { MailerService } from '@nestjs-modules/mailer';
 

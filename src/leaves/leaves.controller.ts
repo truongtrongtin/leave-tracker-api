@@ -12,22 +12,27 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
-import { Pagination } from 'src/pagination';
 import { CurrentUser } from 'src/decorators/current-user.decorator';
+import { FullUrl } from 'src/decorators/full-url.decorator';
+import { JwtAuthGuard } from 'src/guards/jwt-auth.guard';
+import { Pagination } from 'src/pagination';
 import { User } from 'src/users/user.entity';
+import { UsersService } from 'src/users/users.service';
+import { AdminCreateLeaveDto } from './dto/admin-create-leave.dto';
 import { CreateLeaveDto } from './dto/create-leave.dto';
 import { GetLeavesFilterDto } from './dto/get-leaves-filter.dto';
 import { UpdateLeaveDto } from './dto/update-leave.dto';
 import { Leave } from './leave.entity';
 import { LeavesService } from './leaves.service';
-import { FullUrl } from 'src/decorators/full-url.decorator';
 
 @Controller('leaves')
 @ApiTags('leaves')
 @UseGuards(JwtAuthGuard)
 export class LeavesController {
-  constructor(private readonly leavesService: LeavesService) {}
+  constructor(
+    private readonly leavesService: LeavesService,
+    private readonly usersService: UsersService,
+  ) {}
 
   @Post('add')
   @UsePipes(ValidationPipe)
@@ -35,7 +40,20 @@ export class LeavesController {
     @Body() createLeaveDto: CreateLeaveDto,
     @CurrentUser() currentUser: User,
   ): Promise<Leave> {
-    return this.leavesService.create(createLeaveDto, currentUser);
+    const { startAt, endAt, reason } = createLeaveDto;
+    return this.leavesService.create(startAt, endAt, reason, currentUser);
+  }
+
+  @Post('admin.add')
+  // @UseGuards(RolesGuard)
+  // @Roles(Role.ADMIN)
+  @UsePipes(ValidationPipe)
+  async adminCreate(
+    @Body() adminCreateLeaveDto: AdminCreateLeaveDto,
+  ): Promise<Leave> {
+    const { startAt, endAt, reason, userId } = adminCreateLeaveDto;
+    const user = await this.usersService.findById(userId);
+    return this.leavesService.create(startAt, endAt, reason, user);
   }
 
   @Get()
