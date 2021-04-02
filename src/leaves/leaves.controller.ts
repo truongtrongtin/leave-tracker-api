@@ -19,6 +19,7 @@ import { Pagination } from 'src/pagination';
 import { User } from 'src/users/user.entity';
 import { UsersService } from 'src/users/users.service';
 import { AdminCreateLeaveDto } from './dto/admin-create-leave.dto';
+import { CountUsersLeavesDto } from './dto/count-users-leaves.dto';
 import { CreateLeaveDto } from './dto/create-leave.dto';
 import { GetLeavesFilterDto } from './dto/get-leaves-filter.dto';
 import { UpdateLeaveDto } from './dto/update-leave.dto';
@@ -85,5 +86,10 @@ export class LeavesController {
   @HttpCode(200)
   delete(@Param('id') id: number): Promise<void> {
     return this.leavesService.delete(id);
+  }
+
+  @Get('countUsersLeaves')
+  countUsersLeaves(@Query(ValidationPipe) filterDto: CountUsersLeavesDto) {
+    return this.leavesService.countUsersLeaves(filterDto.year);
   }
 }
