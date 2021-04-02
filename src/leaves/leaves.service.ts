@@ -65,6 +65,24 @@ export class LeavesService {
     });
   }
 
+  async countUsersLeaves(year?: number) {
+    const qb = this.leaveRepository
+      .createQueryBuilder('l')
+      .select([
+        'u.id',
+        'u.email',
+        'u.first_name',
+        'u.last_name',
+        'cast(sum(case when extract(hour from (l.end_at - l.start_at)) = 9 then 1 else 0.5 end) as float)',
+      ])
+      .join('l.user', 'u')
+      .groupBy('u.id');
+    if (year) {
+      qb.where(`extract(year from l.start_at) = ${year}`);
+    }
+    return qb.execute();
+  }
+
   async findOneById(id: number): Promise<Leave> {
     const leave = await this.leaveRepository.findOne(id);
     if (!leave) {
