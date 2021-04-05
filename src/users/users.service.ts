@@ -63,6 +63,9 @@ export class UsersService {
     if (exists > 0) {
       throw new BadRequestException('email existed');
     }
+    // const timezone = (
+    //   await this.httpService.get(`http://ip-api.com/json/${ip}`).toPromise()
+    // ).data.timezone;
     const user = new User({ email, password, firstName, lastName });
     await this.userRepository.persistAndFlush(user);
     return user;

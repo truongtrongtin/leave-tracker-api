@@ -84,8 +84,11 @@ export class LeavesController {
 
   @Post(':id/delete')
   @HttpCode(200)
-  delete(@Param('id') id: number): Promise<void> {
-    return this.leavesService.delete(id);
+  delete(
+    @Param('id') id: number,
+    @CurrentUser() currentUser: User,
+  ): Promise<void> {
+    return this.leavesService.delete(id, currentUser);
   }
 
   @Get('countUsersLeaves')

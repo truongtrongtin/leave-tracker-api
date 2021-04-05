@@ -27,6 +27,15 @@ export class LeavesService {
     reason: string,
     user: User,
   ): Promise<Leave> {
+    const count = await this.leaveRepository.count({
+      $or: [{ startAt }, { endAt }],
+      user,
+    });
+    if (count) {
+      throw new BadRequestException(
+        "you've already had a leave on this day. Please edit it or contact the admin",
+      );
+    }
     const leave = new Leave({ startAt, endAt, reason, user });
     await this.leaveRepository.persistAndFlush(leave);
     await this.leaveRepository.populate(leave, ['user']);
@@ -40,7 +49,7 @@ export class LeavesService {
   ): Promise<Pagination<Leave>> {
     const ability = this.caslAbilityFactory.createForUser(user);
     const {
-      limit = 10,
+      limit = 1000,
       page = 1,
       orderBy = 'createdAt',
       order = QueryOrder.DESC,
@@ -94,9 +103,12 @@ export class LeavesService {
   async update(id: number, user: User, updateLeaveDto: UpdateLeaveDto) {
     const ability = this.caslAbilityFactory.createForUser(user);
     const leave = await this.findOneById(id);
-    if (ability.cannot('update', 'all') && leave.startAt < new Date()) {
+    const today = new Date();
+    today.setDate(today.getDate() - 1);
+    // Allow normal user to edit within 1 day after startAt
+    if (ability.cannot('update', 'all') && leave.startAt < today) {
       throw new BadRequestException(
-        "you don't have permission to perform this action",
+        'you can not edit old leave, please contact the admin',
       );
     }
     wrap(leave).assign(updateLeaveDto);
@@ -105,8 +117,17 @@ export class LeavesService {
     return leave;
   }
 
-  async delete(id: number): Promise<void> {
+  async delete(id: number, user: User): Promise<void> {
+    const ability = this.caslAbilityFactory.createForUser(user);
     const leave = await this.findOneById(id);
+    const today = new Date();
+    today.setDate(today.getDate() - 1);
+    // Allow normal user to delete within 1 day after startAt
+    if (ability.cannot('update', 'all') && leave.startAt < today) {
+      throw new BadRequestException(
+        'you can not edit old leave, please contact the admin',
+      );
+    }
     await this.leaveRepository.removeAndFlush(leave);
   }
 }
