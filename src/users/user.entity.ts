@@ -9,8 +9,8 @@ import {
 } from '@mikro-orm/core';
 import { ApiHideProperty } from '@nestjs/swagger';
 import * as bcrypt from 'bcryptjs';
-import { Leave } from '../leaves/leave.entity';
 import { BaseEntity } from '../base.entity';
+import { Leave } from '../leaves/leave.entity';
 import { Task } from '../tasks/task.entity';
 
 @Entity()

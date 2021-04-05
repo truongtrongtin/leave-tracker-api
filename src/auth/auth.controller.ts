@@ -1,25 +1,26 @@
+import { MailerService } from '@nestjs-modules/mailer';
 import {
   Body,
   Controller,
   Get,
   Post,
+  Req,
   Res,
   UseGuards,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-import { SignUpDto } from './dto/sign-up.dto';
-import { User } from '../users/user.entity';
-import { AuthService } from './auth.service';
-import { LogInDto } from './dto/log-in.dto';
-import { LocalGuard } from '../guards/local.guard';
+import { FastifyReply, FastifyRequest } from 'fastify';
 import { CurrentUser } from '../decorators/current-user.decorator';
-import { FastifyReply } from 'fastify';
 import { JwtAuthGuard } from '../guards/jwt-auth.guard';
 import { JwtRefreshGuard } from '../guards/jwt-refresh.guard';
+import { LocalGuard } from '../guards/local.guard';
+import { User } from '../users/user.entity';
 import { UsersService } from '../users/users.service';
-import { MailerService } from '@nestjs-modules/mailer';
+import { AuthService } from './auth.service';
+import { LogInDto } from './dto/log-in.dto';
+import { SignUpDto } from './dto/sign-up.dto';
 
 @Controller('auth')
 @ApiTags('auth')
@@ -32,7 +33,11 @@ export class AuthController {
 
   @Post('signup')
   @UsePipes(ValidationPipe)
-  async signUp(@Body() signUpDto: SignUpDto): Promise<User> {
+  async signUp(
+    @Body() signUpDto: SignUpDto,
+    @Req() request: FastifyRequest,
+  ): Promise<User> {
+    const ip = request.ip;
     const { email, password, firstName, lastName } = signUpDto;
     return await this.usersService.create({
       email,

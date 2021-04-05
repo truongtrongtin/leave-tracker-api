@@ -13,8 +13,8 @@ export class Leave extends BaseEntity {
   @Property()
   reason: string;
 
-  @Enum(() => LeaveStatus)
-  status: LeaveStatus = LeaveStatus.PENDING;
+  // @Enum(() => LeaveStatus)
+  // status: LeaveStatus = LeaveStatus.PENDING;
 
   @ManyToOne(() => User)
   user: User;
@@ -38,8 +38,8 @@ export class Leave extends BaseEntity {
   }
 }
 
-export enum LeaveStatus {
-  PENDING = 'PENDING',
-  APPROVED = 'APPROVED',
-  DECLINED = 'DECLINED',
-}
+// export enum LeaveStatus {
+//   PENDING = 'PENDING',
+//   APPROVED = 'APPROVED',
+//   DECLINED = 'DECLINED',
+// }
