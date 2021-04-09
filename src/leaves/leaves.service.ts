@@ -6,11 +6,9 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { CaslAbilityFactory } from 'src/casl/casl-ability.factory';
 import { Pagination } from 'src/pagination';
-import { User } from 'src/users/user.entity';
+import { Role, User } from 'src/users/user.entity';
 import { GetLeavesFilterDto } from './dto/get-leaves-filter.dto';
-import { UpdateLeaveDto } from './dto/update-leave.dto';
 import { Leave } from './leave.entity';
 
 @Injectable()
@@ -18,7 +16,6 @@ export class LeavesService {
   constructor(
     @InjectRepository(Leave)
     private readonly leaveRepository: EntityRepository<Leave>,
-    private readonly caslAbilityFactory: CaslAbilityFactory,
   ) {}
 
   async create(
@@ -27,11 +24,9 @@ export class LeavesService {
     reason: string,
     user: User,
   ): Promise<Leave> {
-    const from = new Date();
-    from.setMonth(from.getMonth() - 6);
-    const to = new Date();
-    to.setMonth(to.getMonth() + 6);
-    if (startAt < from || startAt > to) {
+    const max = new Date();
+    max.setMonth(max.getMonth() + 6);
+    if (startAt > max) {
       throw new BadRequestException('out of range');
     }
     const count = await this.leaveRepository.count({
@@ -40,7 +35,7 @@ export class LeavesService {
     });
     if (count) {
       throw new BadRequestException(
-        "you've already had a leave on this day. Please edit it or contact the admin",
+        "you've already had a leave on this day, please edit it instead",
       );
     }
     const leave = new Leave({ startAt, endAt, reason, user });
@@ -50,11 +45,9 @@ export class LeavesService {
   }
 
   async getMany(
-    user: User,
     route: string,
     filterDto: GetLeavesFilterDto,
   ): Promise<Pagination<Leave>> {
-    const ability = this.caslAbilityFactory.createForUser(user);
     const {
       limit = 1000,
       page = 1,
@@ -65,14 +58,46 @@ export class LeavesService {
     } = filterDto;
 
     const [leaves, count] = await this.leaveRepository.findAndCount(
-      { ...(userId ? { user: userId } : {}) },
+      { ...(userId && { user: userId }), ...(reason && { reason }) },
       {
         orderBy: { [orderBy]: order },
         limit: limit,
         offset: limit * (page - 1),
       },
     );
-    await this.leaveRepository.populate(leaves, ['user']);
+    if (!userId) {
+      await this.leaveRepository.populate(leaves, ['user']);
+    }
+    return new Pagination<Leave>({
+      items: leaves,
+      totalItems: count,
+      limit,
+      currentPage: page,
+      route,
+    });
+  }
+
+  async getMe(
+    user: User,
+    route: string,
+    filterDto: GetLeavesFilterDto,
+  ): Promise<Pagination<Leave>> {
+    const {
+      limit = 1000,
+      page = 1,
+      orderBy = 'createdAt',
+      order = QueryOrder.DESC,
+      reason,
+    } = filterDto;
+
+    const [leaves, count] = await this.leaveRepository.findAndCount(
+      { user },
+      {
+        orderBy: { [orderBy]: order },
+        limit: limit,
+        offset: limit * (page - 1),
+      },
+    );
     return new Pagination<Leave>({
       items: leaves,
       totalItems: count,
@@ -108,30 +133,42 @@ export class LeavesService {
     return leave;
   }
 
-  async update(id: number, user: User, updateLeaveDto: UpdateLeaveDto) {
-    const ability = this.caslAbilityFactory.createForUser(user);
+  async update(
+    id: number,
+    startAt: Date,
+    endAt: Date,
+    reason: string,
+    user: User,
+    currentUser: User,
+  ) {
     const leave = await this.findOneById(id);
-    const today = new Date();
-    today.setDate(today.getDate() - 1);
-    // Allow normal user to edit within 1 day after startAt
-    if (ability.cannot('update', 'all') && leave.startAt < today) {
-      throw new BadRequestException(
-        'you can not edit old leave, please contact the admin',
-      );
+    if (currentUser.role === Role.MEMBER) {
+      const today = new Date();
+      today.setDate(today.getDate() - 1);
+      // Allow normal user to edit within 1 day after startAt
+      if (currentUser.id !== leave.user.id) {
+        throw new BadRequestException(
+          "you can not edit other's leave, please contact the admin",
+        );
+      }
+      if (leave.startAt < today) {
+        throw new BadRequestException(
+          'you can not edit old leave, please contact the admin',
+        );
+      }
     }
-    wrap(leave).assign(updateLeaveDto);
+    wrap(leave).assign({ startAt, endAt, reason, user });
     await this.leaveRepository.flush();
     await this.leaveRepository.populate(leave, ['user']);
     return leave;
   }
 
-  async delete(id: number, user: User): Promise<void> {
-    const ability = this.caslAbilityFactory.createForUser(user);
+  async delete(id: number, currentUser: User): Promise<void> {
     const leave = await this.findOneById(id);
     const today = new Date();
     today.setDate(today.getDate() - 1);
     // Allow normal user to delete within 1 day after startAt
-    if (ability.cannot('update', 'all') && leave.startAt < today) {
+    if (currentUser.role === Role.MEMBER && leave.startAt < today) {
       throw new BadRequestException(
         'you can not edit old leave, please contact the admin',
       );

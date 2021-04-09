@@ -1,7 +1,7 @@
 import { Options } from '@mikro-orm/core';
 
 const mikroOrmConfig: Options = {
-  entities: ['dist/**/*.entity.js'],
+  entities: ['./dist/**/*.entity.js'],
   entitiesTs: ['./src/**/*.entity.ts'],
   dbName: process.env.DATABASE_NAME,
   type: 'postgresql',

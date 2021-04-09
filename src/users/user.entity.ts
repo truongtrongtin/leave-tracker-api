@@ -1,5 +1,6 @@
 import {
   BeforeCreate,
+  BeforeUpdate,
   Collection,
   Entity,
   Enum,
@@ -27,7 +28,7 @@ export class User extends BaseEntity {
 
   @Property({ hidden: true })
   @ApiHideProperty()
-  hashedPassword: string;
+  password: string;
 
   @Property({ hidden: true, nullable: true })
   @ApiHideProperty()
@@ -58,18 +59,19 @@ export class User extends BaseEntity {
   }) {
     super();
     this.email = email;
-    this.hashedPassword = password;
+    this.password = password;
     this.firstName = firstName;
     this.lastName = lastName;
   }
 
   @BeforeCreate()
+  @BeforeUpdate()
   async setPassword(): Promise<void> {
-    this.hashedPassword = await bcrypt.hash(this.hashedPassword, 10);
+    this.password = await bcrypt.hash(this.password, 10);
   }
 
   async checkPassword(plainPassword: string): Promise<boolean> {
-    return await bcrypt.compare(plainPassword, this.hashedPassword);
+    return await bcrypt.compare(plainPassword, this.password);
   }
 }
 

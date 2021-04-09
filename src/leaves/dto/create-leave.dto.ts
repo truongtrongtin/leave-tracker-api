@@ -1,5 +1,5 @@
 import { Type } from 'class-transformer';
-import { IsDate, IsNotEmpty } from 'class-validator';
+import { IsDate, IsNotEmpty, IsOptional } from 'class-validator';
 
 export class CreateLeaveDto {
   @Type(() => Date)
@@ -14,4 +14,7 @@ export class CreateLeaveDto {
 
   @IsNotEmpty()
   reason!: string;
+
+  @IsOptional()
+  userId?: number;
 }
