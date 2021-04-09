@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Get,
@@ -33,12 +34,35 @@ export class UsersController {
     return this.usersService.getByEmail(email);
   }
 
-  @Post(':id/edit')
-  update(
-    @Param('id', ParseIntPipe) id: number,
+  @Post('edit/me')
+  async update(
     @Body() updateUserDto: UpdateUserDto,
+    @CurrentUser() currentUser: User,
   ): Promise<User> {
-    return this.usersService.update(id, updateUserDto);
+    const {
+      firstName,
+      lastName,
+      role,
+      currentPassword,
+      password,
+    } = updateUserDto;
+    if (currentPassword && password) {
+      const user = await this.usersService.getAuthenticated(
+        currentUser.email,
+        currentPassword,
+      );
+      if (!user) {
+        throw new BadRequestException('wrong password');
+      }
+      return this.usersService.update(
+        currentUser.id,
+        firstName,
+        lastName,
+        role,
+        password,
+      );
+    }
+    return this.usersService.update(currentUser.id, firstName, lastName, role);
   }
 
   @Post(':id/editAvatar')

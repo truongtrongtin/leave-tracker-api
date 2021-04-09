@@ -2,11 +2,10 @@ import { MikroOrmModule } from '@mikro-orm/nestjs';
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { TasksModule } from './tasks/tasks.module';
 import { AuthModule } from './auth/auth.module';
-import { MailModule } from './mail/mail.module';
 import { LeavesModule } from './leaves/leaves.module';
-import { CaslModule } from './casl/casl.module';
+import { MailModule } from './mail/mail.module';
+import { TasksModule } from './tasks/tasks.module';
 
 @Module({
   controllers: [AppController],
@@ -17,7 +16,6 @@ import { CaslModule } from './casl/casl.module';
     AuthModule,
     MailModule,
     LeavesModule,
-    CaslModule,
   ],
 })
 export class AppModule {}

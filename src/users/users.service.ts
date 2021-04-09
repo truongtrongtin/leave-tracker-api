@@ -10,7 +10,7 @@ import {
 import * as bcrypt from 'bcryptjs';
 import { FastifyRequest } from 'fastify';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { User } from './user.entity';
+import { Role, User } from './user.entity';
 
 @Injectable()
 export class UsersService {
@@ -84,9 +84,20 @@ export class UsersService {
     await query.getResultList();
   }
 
-  async update(id: number, updateUserDto: UpdateUserDto) {
+  async update(
+    id: number,
+    firstName: string,
+    lastName: string,
+    role?: Role,
+    password?: string,
+  ) {
     const user = await this.findById(id);
-    wrap(user).assign(updateUserDto);
+    wrap(user).assign({
+      firstName,
+      lastName,
+      ...(role && { role }),
+      ...(password && { password }),
+    });
     this.userRepository.flush();
     return user;
   }
