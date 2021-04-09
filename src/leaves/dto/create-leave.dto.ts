@@ -1,12 +1,15 @@
-import { IsDateString, IsNotEmpty } from 'class-validator';
+import { Type } from 'class-transformer';
+import { IsDate, IsNotEmpty } from 'class-validator';
 
 export class CreateLeaveDto {
+  @Type(() => Date)
   @IsNotEmpty()
-  @IsDateString()
+  @IsDate()
   startAt!: Date;
 
+  @Type(() => Date)
   @IsNotEmpty()
-  @IsDateString()
+  @IsDate()
   endAt!: Date;
 
   @IsNotEmpty()

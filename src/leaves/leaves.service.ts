@@ -27,6 +27,13 @@ export class LeavesService {
     reason: string,
     user: User,
   ): Promise<Leave> {
+    const from = new Date();
+    from.setMonth(from.getMonth() - 6);
+    const to = new Date();
+    to.setMonth(to.getMonth() + 6);
+    if (startAt < from || startAt > to) {
+      throw new BadRequestException('out of range');
+    }
     const count = await this.leaveRepository.count({
       $or: [{ startAt }, { endAt }],
       user,
@@ -54,10 +61,11 @@ export class LeavesService {
       orderBy = 'createdAt',
       order = QueryOrder.DESC,
       reason,
+      userId,
     } = filterDto;
 
     const [leaves, count] = await this.leaveRepository.findAndCount(
-      {},
+      { ...(userId ? { user: userId } : {}) },
       {
         orderBy: { [orderBy]: order },
         limit: limit,
