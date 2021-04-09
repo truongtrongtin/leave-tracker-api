@@ -7,12 +7,14 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import fastifyCookie from 'fastify-cookie';
 import fastifyMultipart from 'fastify-multipart';
+import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(
     AppModule,
     new FastifyAdapter({ trustProxy: true }),
   );
+  app.useGlobalPipes(new ValidationPipe({ transform: true }));
   // app.setGlobalPrefix('v1');
   app.enableCors({
     origin: true,

@@ -7,8 +7,6 @@ import {
   Req,
   Res,
   UseGuards,
-  UsePipes,
-  ValidationPipe,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { FastifyReply, FastifyRequest } from 'fastify';
@@ -32,7 +30,6 @@ export class AuthController {
   ) {}
 
   @Post('signup')
-  @UsePipes(ValidationPipe)
   async signUp(
     @Body() signUpDto: SignUpDto,
     @Req() request: FastifyRequest,
@@ -55,7 +52,6 @@ export class AuthController {
 
   @Post('login')
   @UseGuards(LocalGuard)
-  @UsePipes(ValidationPipe)
   async logIn(
     @CurrentUser() currentUser: User,
     @Body() logInDto: LogInDto,

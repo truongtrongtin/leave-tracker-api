@@ -17,4 +17,7 @@ export class GetLeavesFilterDto {
 
   @IsOptional()
   reason?: string;
+
+  @IsOptional()
+  userId?: number;
 }

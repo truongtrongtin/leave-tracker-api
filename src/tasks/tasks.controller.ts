@@ -7,12 +7,10 @@ import {
   Post,
   Query,
   UseGuards,
-  UsePipes,
-  ValidationPipe,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-import { JwtAuthGuard } from '../guards/jwt-auth.guard';
 import { CurrentUser } from '../decorators/current-user.decorator';
+import { JwtAuthGuard } from '../guards/jwt-auth.guard';
 import { User } from '../users/user.entity';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { GetTasksFilterDto } from './dto/get-tasks-filter.dto';
@@ -27,9 +25,8 @@ export class TasksController {
   constructor(private taskService: TasksService) {}
 
   @Get()
-  @UsePipes(ValidationPipe)
   getAll(
-    @Query(ValidationPipe) filterDto: GetTasksFilterDto,
+    @Query() filterDto: GetTasksFilterDto,
     @CurrentUser() user: User,
   ): Promise<Task[]> {
     return this.taskService.getAllWithFilter(filterDto, user);
@@ -41,7 +38,6 @@ export class TasksController {
   }
 
   @Post('/add')
-  @UsePipes(ValidationPipe)
   create(
     @Body() createTaskDto: CreateTaskDto,
     @CurrentUser() user: User,
@@ -55,7 +51,6 @@ export class TasksController {
   }
 
   @Post(':id/editStatus')
-  @UsePipes(ValidationPipe)
   updateStatus(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateTaskStatusDto: UpdateTaskStatusDto,

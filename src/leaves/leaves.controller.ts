@@ -8,7 +8,6 @@ import {
   Post,
   Query,
   UseGuards,
-  UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
@@ -36,7 +35,6 @@ export class LeavesController {
   ) {}
 
   @Post('add')
-  @UsePipes(ValidationPipe)
   create(
     @Body() createLeaveDto: CreateLeaveDto,
     @CurrentUser() currentUser: User,
@@ -48,7 +46,6 @@ export class LeavesController {
   @Post('admin.add')
   // @UseGuards(RolesGuard)
   // @Roles(Role.ADMIN)
-  @UsePipes(ValidationPipe)
   async adminCreate(
     @Body() adminCreateLeaveDto: AdminCreateLeaveDto,
   ): Promise<Leave> {
@@ -59,7 +56,7 @@ export class LeavesController {
 
   @Get()
   getMany(
-    @Query(ValidationPipe) filterDto: GetLeavesFilterDto,
+    @Query() filterDto: GetLeavesFilterDto,
     @CurrentUser() currentUser: User,
     @FullUrl() fullUrl: string,
   ): Promise<Pagination<Leave>> {
@@ -73,7 +70,6 @@ export class LeavesController {
 
   @Post(':id/edit')
   @HttpCode(200)
-  @UsePipes(ValidationPipe)
   update(
     @Param('id', ParseIntPipe) id: number,
     @CurrentUser() currentUser: User,
@@ -92,7 +88,7 @@ export class LeavesController {
   }
 
   @Get('countUsersLeaves')
-  countUsersLeaves(@Query(ValidationPipe) filterDto: CountUsersLeavesDto) {
+  countUsersLeaves(@Query() filterDto: CountUsersLeavesDto) {
     return this.leavesService.countUsersLeaves(filterDto.year);
   }
 }
