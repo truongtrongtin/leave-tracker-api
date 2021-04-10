@@ -10,8 +10,8 @@ export class Leave extends BaseEntity {
   @Property()
   endAt: Date;
 
-  @Property()
-  reason: string;
+  @Property({ nullable: true })
+  reason?: string;
 
   // @Enum(() => LeaveStatus)
   // status: LeaveStatus = LeaveStatus.PENDING;
@@ -28,7 +28,7 @@ export class Leave extends BaseEntity {
     user: User;
     startAt: Date;
     endAt: Date;
-    reason: string;
+    reason?: string;
   }) {
     super();
     this.reason = reason;

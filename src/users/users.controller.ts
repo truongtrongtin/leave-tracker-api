@@ -44,9 +44,9 @@ export class UsersController {
       lastName,
       role,
       currentPassword,
-      password,
+      newPassword,
     } = updateUserDto;
-    if (currentPassword && password) {
+    if (currentPassword && newPassword) {
       const user = await this.usersService.getAuthenticated(
         currentUser.email,
         currentPassword,
@@ -59,7 +59,7 @@ export class UsersController {
         firstName,
         lastName,
         role,
-        password,
+        newPassword,
       );
     }
     return this.usersService.update(currentUser.id, firstName, lastName, role);

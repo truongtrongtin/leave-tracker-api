@@ -12,8 +12,8 @@ export class CreateLeaveDto {
   @IsDate()
   endAt!: Date;
 
-  @IsNotEmpty()
-  reason!: string;
+  @IsOptional()
+  reason?: string;
 
   @IsOptional()
   userId?: number;

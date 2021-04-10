@@ -21,8 +21,8 @@ export class LeavesService {
   async create(
     startAt: Date,
     endAt: Date,
-    reason: string,
     user: User,
+    reason?: string,
   ): Promise<Leave> {
     const max = new Date();
     max.setMonth(max.getMonth() + 6);
@@ -65,9 +65,7 @@ export class LeavesService {
         offset: limit * (page - 1),
       },
     );
-    if (!userId) {
-      await this.leaveRepository.populate(leaves, ['user']);
-    }
+    await this.leaveRepository.populate(leaves, ['user']);
     return new Pagination<Leave>({
       items: leaves,
       totalItems: count,
@@ -91,7 +89,7 @@ export class LeavesService {
     } = filterDto;
 
     const [leaves, count] = await this.leaveRepository.findAndCount(
-      { user },
+      { user, ...(reason && { reason }) },
       {
         orderBy: { [orderBy]: order },
         limit: limit,
@@ -137,9 +135,9 @@ export class LeavesService {
     id: number,
     startAt: Date,
     endAt: Date,
-    reason: string,
     user: User,
     currentUser: User,
+    reason?: string,
   ) {
     const leave = await this.findOneById(id);
     if (currentUser.role === Role.MEMBER) {

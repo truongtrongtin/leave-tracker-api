@@ -44,7 +44,7 @@ export class LeavesController {
     } else {
       user = currentUser;
     }
-    return this.leavesService.create(startAt, endAt, reason, user);
+    return this.leavesService.create(startAt, endAt, user, reason);
   }
 
   @Get()
@@ -87,9 +87,9 @@ export class LeavesController {
       id,
       startAt,
       endAt,
-      reason,
       newLeaveUser,
       currentUser,
+      reason,
     );
   }
 
