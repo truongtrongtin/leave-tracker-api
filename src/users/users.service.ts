@@ -9,8 +9,9 @@ import {
 } from '@nestjs/common';
 import * as bcrypt from 'bcryptjs';
 import { FastifyRequest } from 'fastify';
+import { SignUpDto } from 'src/auth/dto/sign-up.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { Role, User } from './user.entity';
+import { User } from './user.entity';
 
 @Injectable()
 export class UsersService {
@@ -21,6 +22,12 @@ export class UsersService {
 
   async getAll(): Promise<User[]> {
     return await this.userRepository.findAll();
+  }
+
+  async getAllBirthDays(): Promise<User[]> {
+    const query = this.userRepository.createQueryBuilder('t');
+    query.select(['id', 'firstName', 'lastName', 'birthday']);
+    return query.execute();
   }
 
   async getByEmail(email: string): Promise<User> {
@@ -48,25 +55,16 @@ export class UsersService {
     return user;
   }
 
-  async create({
-    email,
-    password,
-    firstName,
-    lastName,
-  }: {
-    email: string;
-    password: string;
-    firstName: string;
-    lastName: string;
-  }): Promise<User> {
-    const exists = await this.userRepository.count({ email });
+  async create(signUpDto: SignUpDto): Promise<User> {
+    const exists = await this.userRepository.count({ email: signUpDto.email });
     if (exists > 0) {
       throw new BadRequestException('email existed');
     }
     // const timezone = (
     //   await this.httpService.get(`http://ip-api.com/json/${ip}`).toPromise()
     // ).data.timezone;
-    const user = new User({ email, password, firstName, lastName });
+    const password = await bcrypt.hash(signUpDto.password, 10);
+    const user = new User({ ...signUpDto, password });
     await this.userRepository.persistAndFlush(user);
     return user;
   }
@@ -84,20 +82,13 @@ export class UsersService {
     await query.getResultList();
   }
 
-  async update(
-    id: number,
-    firstName: string,
-    lastName: string,
-    role?: Role,
-    password?: string,
-  ) {
+  async update(id: number, updateUserDto: UpdateUserDto) {
     const user = await this.findById(id);
-    wrap(user).assign({
-      firstName,
-      lastName,
-      ...(role && { role }),
-      ...(password && { password }),
-    });
+    let password;
+    if (updateUserDto.newPassword) {
+      password = await bcrypt.hash(updateUserDto.newPassword, 10);
+    }
+    wrap(user).assign({ ...updateUserDto, ...(password && { password }) });
     this.userRepository.flush();
     return user;
   }

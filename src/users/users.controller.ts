@@ -11,10 +11,10 @@ import {
 } from '@nestjs/common';
 import { ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger';
 import { FastifyRequest } from 'fastify';
+import { CurrentUser } from '../decorators/current-user.decorator';
 import { JwtAuthGuard } from '../guards/jwt-auth.guard';
 import { AvatarUploadDto } from './dto/avatar-upload.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { CurrentUser } from '../decorators/current-user.decorator';
 import { User } from './user.entity';
 import { UsersService } from './users.service';
 
@@ -29,6 +29,11 @@ export class UsersController {
     return this.usersService.getAll();
   }
 
+  @Get('birthday')
+  getAllBirthdays(): Promise<User[]> {
+    return this.usersService.getAllBirthDays();
+  }
+
   @Get(':email')
   getByEmail(@Param('email') email: string): Promise<User> {
     return this.usersService.getByEmail(email);
@@ -39,13 +44,7 @@ export class UsersController {
     @Body() updateUserDto: UpdateUserDto,
     @CurrentUser() currentUser: User,
   ): Promise<User> {
-    const {
-      firstName,
-      lastName,
-      role,
-      currentPassword,
-      newPassword,
-    } = updateUserDto;
+    const { currentPassword, newPassword } = updateUserDto;
     if (currentPassword && newPassword) {
       const user = await this.usersService.getAuthenticated(
         currentUser.email,
@@ -54,15 +53,8 @@ export class UsersController {
       if (!user) {
         throw new BadRequestException('wrong password');
       }
-      return this.usersService.update(
-        currentUser.id,
-        firstName,
-        lastName,
-        role,
-        newPassword,
-      );
     }
-    return this.usersService.update(currentUser.id, firstName, lastName, role);
+    return this.usersService.update(currentUser.id, updateUserDto);
   }
 
   @Post(':id/editAvatar')

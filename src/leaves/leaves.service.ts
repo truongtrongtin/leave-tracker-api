@@ -163,13 +163,20 @@ export class LeavesService {
 
   async delete(id: number, currentUser: User): Promise<void> {
     const leave = await this.findOneById(id);
-    const today = new Date();
-    today.setDate(today.getDate() - 1);
-    // Allow normal user to delete within 1 day after startAt
-    if (currentUser.role === Role.MEMBER && leave.startAt < today) {
-      throw new BadRequestException(
-        'you can not edit old leave, please contact the admin',
-      );
+    if (currentUser.role === Role.MEMBER) {
+      const today = new Date();
+      today.setDate(today.getDate() - 1);
+      // Allow normal user to edit within 1 day after startAt
+      if (currentUser.id !== leave.user.id) {
+        throw new BadRequestException(
+          "you can not edit other's leave, please contact the admin",
+        );
+      }
+      if (leave.startAt < today) {
+        throw new BadRequestException(
+          'you can not edit old leave, please contact the admin',
+        );
+      }
     }
     await this.leaveRepository.removeAndFlush(leave);
   }

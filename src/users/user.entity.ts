@@ -46,28 +46,28 @@ export class User extends BaseEntity {
   @Property({ nullable: true })
   avatar?: string;
 
+  @Property({ type: 'date', nullable: true })
+  birthday?: Date;
+
   constructor({
     email,
     password,
     firstName,
     lastName,
+    birthday,
   }: {
     email: string;
     password: string;
     firstName: string;
     lastName: string;
+    birthday?: Date;
   }) {
     super();
     this.email = email;
     this.password = password;
     this.firstName = firstName;
     this.lastName = lastName;
-  }
-
-  @BeforeCreate()
-  @BeforeUpdate()
-  async setPassword(): Promise<void> {
-    this.password = await bcrypt.hash(this.password, 10);
+    this.birthday = birthday;
   }
 
   async checkPassword(plainPassword: string): Promise<boolean> {

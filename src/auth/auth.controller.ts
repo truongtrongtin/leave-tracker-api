@@ -34,14 +34,8 @@ export class AuthController {
     @Body() signUpDto: SignUpDto,
     @Req() request: FastifyRequest,
   ): Promise<User> {
-    const ip = request.ip;
-    const { email, password, firstName, lastName } = signUpDto;
-    return await this.usersService.create({
-      email,
-      password,
-      firstName,
-      lastName,
-    });
+    // const ip = request.ip;
+    return await this.usersService.create(signUpDto);
     // this.mailerService.sendMail({
     //   to: email,
     //   subject: 'Welcome to HRM',

@@ -17,4 +17,7 @@ export class UpdateUserDto {
 
   @IsOptional()
   newPassword?: string;
+
+  @IsOptional()
+  birthday?: Date;
 }
