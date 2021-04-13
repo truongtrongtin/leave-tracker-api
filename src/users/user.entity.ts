@@ -47,27 +47,27 @@ export class User extends BaseEntity {
   avatar?: string;
 
   @Property({ type: 'date', nullable: true })
-  birthday?: Date;
+  dateOfBirth?: Date;
 
   constructor({
     email,
     password,
     firstName,
     lastName,
-    birthday,
+    dateOfBirth,
   }: {
     email: string;
     password: string;
     firstName: string;
     lastName: string;
-    birthday?: Date;
+    dateOfBirth?: Date;
   }) {
     super();
     this.email = email;
     this.password = password;
     this.firstName = firstName;
     this.lastName = lastName;
-    this.birthday = birthday;
+    this.dateOfBirth = dateOfBirth;
   }
 
   async checkPassword(plainPassword: string): Promise<boolean> {

@@ -29,9 +29,9 @@ export class UsersController {
     return this.usersService.getAll();
   }
 
-  @Get('birthday')
-  getAllBirthdays(): Promise<User[]> {
-    return this.usersService.getAllBirthDays();
+  @Get('dateOfBirth')
+  getAllDateOfBirths(): Promise<User[]> {
+    return this.usersService.getAllDateOfBirths();
   }
 
   @Get(':email')

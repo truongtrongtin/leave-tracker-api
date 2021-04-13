@@ -19,5 +19,5 @@ export class UpdateUserDto {
   newPassword?: string;
 
   @IsOptional()
-  birthday?: Date;
+  dateOfBirth?: Date;
 }
