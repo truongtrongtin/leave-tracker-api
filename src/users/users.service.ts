@@ -24,9 +24,9 @@ export class UsersService {
     return await this.userRepository.findAll();
   }
 
-  async getAllBirthDays(): Promise<User[]> {
+  async getAllDateOfBirths(): Promise<User[]> {
     const query = this.userRepository.createQueryBuilder('t');
-    query.select(['id', 'firstName', 'lastName', 'birthday']);
+    query.select(['id', 'firstName', 'lastName', 'dateOfBirth']);
     return query.execute();
   }
 
