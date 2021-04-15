@@ -101,7 +101,13 @@ export class UsersService {
   async updateAvatar(request: FastifyRequest, user: User) {
     const data = await request.file();
     const buffer = await data.toBuffer();
-    const storage = new Storage();
+    const googleStorageJsonKey = Buffer.from(
+      process.env.GOOGLE_STORAGE_KEY_BASE64!,
+      'base64',
+    ).toString('ascii');
+    const storage = new Storage({
+      credentials: JSON.parse(googleStorageJsonKey),
+    });
     const bucket = storage.bucket(process.env.BUCKET_NAME!);
 
     // if (user.avatar) {

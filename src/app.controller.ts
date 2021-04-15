@@ -10,4 +10,9 @@ export class AppController {
   getHello(): string {
     return this.appService.getHello();
   }
+
+  @Get('holidays')
+  getHolidays() {
+    return this.appService.getCachedHolidays();
+  }
 }

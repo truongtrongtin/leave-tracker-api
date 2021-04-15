@@ -1,5 +1,6 @@
 import { MikroOrmModule } from '@mikro-orm/nestjs';
-import { Module } from '@nestjs/common';
+import { CacheModule, Module } from '@nestjs/common';
+import { ScheduleModule } from '@nestjs/schedule';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
@@ -11,7 +12,9 @@ import { TasksModule } from './tasks/tasks.module';
   controllers: [AppController],
   providers: [AppService],
   imports: [
+    CacheModule.register(),
     MikroOrmModule.forRoot(),
+    ScheduleModule.forRoot(),
     TasksModule,
     AuthModule,
     MailModule,
