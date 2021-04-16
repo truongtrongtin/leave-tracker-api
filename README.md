@@ -15,6 +15,8 @@ $ npm install
 $ cp .env.example .env
 ```
 
+- Put google service json file into `credentials` folder and add the right path into `.env`
+
 ```bash
 # Start containers
 $ docker-compose up
@@ -49,7 +51,7 @@ $ mkdir learn-nestjs
 
 - Replace all domain in `nginx.conf` and `nginx.second.conf` with your domain
 
-- From local, copy all files in `deployment` folder and `.env` into app folder in VPS, remember to use `production` environment variables
+- From local, copy all files in `deployment` folder, `credentials` folder and `.env` into app folder in VPS, remember to set `production` environment variables
 
 ```bash
 $ scp -r deployment/ user@host:~/learn-nestjs

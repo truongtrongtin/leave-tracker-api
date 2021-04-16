@@ -37,4 +37,5 @@ lerna-debug.log*
 .env
 
 # CREDENTIALS
-/credentials
+credentials/*
+!credentials/.gitkeep
