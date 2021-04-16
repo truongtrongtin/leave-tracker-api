@@ -9,6 +9,8 @@ services:
       - ${PORT}:${PORT}
     depends_on:
       - postgres
+    volumes:
+      - ./credentials:/app/credentials
 
   postgres:
     image: postgres:alpine

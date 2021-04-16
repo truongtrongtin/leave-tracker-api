@@ -5,10 +5,7 @@ import { google } from 'googleapis';
 
 @Injectable()
 export class AppService {
-  constructor(
-    @Inject(CACHE_MANAGER)
-    private cacheManager: Cache,
-  ) {}
+  constructor(@Inject(CACHE_MANAGER) private cacheManager: Cache) {}
 
   getHello(): string {
     return `Read API document <a href="/doc">here</>`;
@@ -16,12 +13,8 @@ export class AppService {
 
   @Cron('0 0 0 * * *') // everyday
   async fetchAndCacheHolidays() {
-    const googleCalendarJsonKey = Buffer.from(
-      process.env.GOOGLE_CALENDAR_KEY_BASE64!,
-      'base64',
-    ).toString('ascii');
     const auth = new google.auth.GoogleAuth({
-      credentials: JSON.parse(googleCalendarJsonKey),
+      keyFilename: process.env.GOOGLE_CALENDAR_KEY_PATH,
       scopes: ['https://www.googleapis.com/auth/calendar.readonly'],
     });
     const authClient = await auth.getClient();
