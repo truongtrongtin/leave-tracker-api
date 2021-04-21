@@ -6,8 +6,8 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { Pagination } from 'src/pagination';
-import { Role, User } from 'src/users/user.entity';
+import { Pagination } from '../pagination';
+import { Role, User } from '../users/user.entity';
 import { GetLeavesFilterDto } from './dto/get-leaves-filter.dto';
 import { Leave } from './leave.entity';
 

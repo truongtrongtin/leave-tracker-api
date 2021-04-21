@@ -8,6 +8,7 @@ import { AppModule } from './app.module';
 import fastifyCookie from 'fastify-cookie';
 import fastifyMultipart from 'fastify-multipart';
 import { ValidationPipe } from '@nestjs/common';
+import { WsAdapter } from '@nestjs/platform-ws';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(
@@ -23,6 +24,7 @@ async function bootstrap() {
   });
   app.register(fastifyCookie);
   app.register(fastifyMultipart);
+  app.useWebSocketAdapter(new WsAdapter(app));
 
   const options = new DocumentBuilder()
     .setTitle('Todo API')
