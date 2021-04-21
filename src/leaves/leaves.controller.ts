@@ -10,12 +10,12 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-import { CurrentUser } from 'src/decorators/current-user.decorator';
-import { FullUrl } from 'src/decorators/full-url.decorator';
-import { JwtAuthGuard } from 'src/guards/jwt-auth.guard';
-import { Pagination } from 'src/pagination';
-import { Role, User } from 'src/users/user.entity';
-import { UsersService } from 'src/users/users.service';
+import { CurrentUser } from '../decorators/current-user.decorator';
+import { FullUrl } from '../decorators/full-url.decorator';
+import { JwtAuthGuard } from '../guards/jwt-auth.guard';
+import { Pagination } from '../pagination';
+import { Role, User } from '../users/user.entity';
+import { UsersService } from '../users/users.service';
 import { CountUsersLeavesDto } from './dto/count-users-leaves.dto';
 import { CreateLeaveDto } from './dto/create-leave.dto';
 import { GetLeavesFilterDto } from './dto/get-leaves-filter.dto';
