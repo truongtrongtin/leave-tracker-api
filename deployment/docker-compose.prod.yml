@@ -11,6 +11,7 @@ services:
       - postgres
     volumes:
       - ./credentials:/app/credentials
+      - ./cache:/app/cache
 
   postgres:
     image: postgres:alpine

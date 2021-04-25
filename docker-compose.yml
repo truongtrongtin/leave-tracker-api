@@ -7,7 +7,7 @@ services:
     container_name: nest
     volumes:
       - .:/app
-      - /app/node_modules
+      - node_modules:/app/node_modules
     env_file:
       - .env
     ports:
@@ -55,3 +55,4 @@ services:
 
 volumes:
   postgres:
+  node_modules:

@@ -8,12 +8,16 @@ import { EventsModule } from './events/events.module';
 import { LeavesModule } from './leaves/leaves.module';
 import { MailModule } from './mail/mail.module';
 import { TasksModule } from './tasks/tasks.module';
+const fsStore = require('cache-manager-fs-hash');
 
 @Module({
   controllers: [AppController],
   providers: [AppService],
   imports: [
-    CacheModule.register(),
+    CacheModule.register({
+      store: fsStore,
+      path: 'cache',
+    }),
     MikroOrmModule.forRoot(),
     ScheduleModule.forRoot(),
     EventsModule,
