@@ -1,5 +1,6 @@
 import {
   MessageBody,
+  OnGatewayConnection,
   SubscribeMessage,
   WebSocketGateway,
   WebSocketServer,
@@ -7,15 +8,17 @@ import {
 import { Server } from 'ws';
 
 @WebSocketGateway({ path: '/websocket' })
-export class EventsGateway {
+export class EventsGateway implements OnGatewayConnection {
   @WebSocketServer()
   server!: Server;
+
+  async handleConnection(socket: WebSocket) {}
 
   @SubscribeMessage('events')
   handleEvent(@MessageBody() data: string): any {
     const event = 'events';
-    this.server.clients.forEach((client) =>
-      client.send(JSON.stringify({ event, data })),
-    );
+    this.server.clients.forEach((client) => {
+      client.send(JSON.stringify({ event, data }));
+    });
   }
 }

@@ -28,7 +28,8 @@ export class AppService {
       orderBy: 'startTime',
     });
     const holidays = holidayResponse.data.items;
-    return this.cacheManager.set('holidays', holidays, { ttl: 86400 }); // 1 day
+    await this.cacheManager.set('holidays', holidays, { ttl: 86400 }); // 1 day
+    return holidays;
   }
 
   async getCachedHolidays() {

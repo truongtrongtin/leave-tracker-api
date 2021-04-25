@@ -38,4 +38,8 @@ lerna-debug.log*
 
 # CREDENTIALS
 credentials/*
-!credentials/.gitkeep
+
+# CACHE
+cache/*
+
+!**/README.md
