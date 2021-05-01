@@ -105,7 +105,21 @@ export class LeavesService {
     });
   }
 
-  async countUsersLeaves(year?: number) {
+  async getLeaveSumByUser(userId: number, year?: number) {
+    const qb = this.leaveRepository
+      .createQueryBuilder('l')
+      .select(
+        'cast(sum(case when extract(hour from (l.end_at - l.start_at)) = 9 then 1 else 0.5 end) as float)',
+      )
+      .where(`l.user_id = ${userId}`);
+    if (year) {
+      qb.andWhere(`extract(year from l.start_at) = ${year}`);
+    }
+    const result = await qb.execute();
+    return result[0];
+  }
+
+  async getAllUsersLeaveSum(year?: number) {
     const qb = this.leaveRepository
       .createQueryBuilder('l')
       .select([

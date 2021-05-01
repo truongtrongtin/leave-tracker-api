@@ -102,8 +102,16 @@ export class LeavesController {
     return this.leavesService.delete(id, currentUser);
   }
 
-  @Get('countUsersLeaves')
-  countUsersLeaves(@Query() filterDto: CountUsersLeavesDto) {
-    return this.leavesService.countUsersLeaves(filterDto.year);
+  @Get('getMyLeaveSum')
+  getMyLeaveSum(
+    @Query() filterDto: CountUsersLeavesDto,
+    @CurrentUser() currentUser: User,
+  ) {
+    return this.leavesService.getLeaveSumByUser(currentUser.id, filterDto.year);
+  }
+
+  @Get('getAllUsersLeaveSum')
+  getAllUsersLeaveSum(@Query() filterDto: CountUsersLeavesDto) {
+    return this.leavesService.getAllUsersLeaveSum(filterDto.year);
   }
 }
