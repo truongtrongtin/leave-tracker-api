@@ -105,13 +105,13 @@ export class LeavesService {
     });
   }
 
-  async getLeaveSumByUser(userId: number, year?: number) {
+  async getLeaveSumByUser(userId: string, year?: number) {
     const qb = this.leaveRepository
       .createQueryBuilder('l')
       .select(
         'cast(sum(case when extract(hour from (l.end_at - l.start_at)) = 9 then 1 else 0.5 end) as float)',
       )
-      .where(`l.user_id = ${userId}`);
+      .where(`l.user_id = '${userId}'`);
     if (year) {
       qb.andWhere(`extract(year from l.start_at) = ${year}`);
     }
@@ -137,7 +137,7 @@ export class LeavesService {
     return qb.execute();
   }
 
-  async findOneById(id: number): Promise<Leave> {
+  async findOneById(id: string): Promise<Leave> {
     const leave = await this.leaveRepository.findOne(id);
     if (!leave) {
       throw new NotFoundException(`leave with ID "${id}" not found`);
@@ -146,7 +146,7 @@ export class LeavesService {
   }
 
   async update(
-    id: number,
+    id: string,
     startAt: Date,
     endAt: Date,
     user: User,
@@ -175,7 +175,7 @@ export class LeavesService {
     return leave;
   }
 
-  async delete(id: number, currentUser: User): Promise<void> {
+  async delete(id: string, currentUser: User): Promise<void> {
     const leave = await this.findOneById(id);
     if (currentUser.role === Role.MEMBER) {
       const today = new Date();

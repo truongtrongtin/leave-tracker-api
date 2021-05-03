@@ -42,4 +42,7 @@ credentials/*
 # CACHE
 cache/*
 
+# ADMINER PLUGINS
+plugins-enabled/*
+
 !**/README.md

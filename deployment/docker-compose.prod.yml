@@ -40,6 +40,18 @@ services:
     depends_on:
       - nest
 
+  adminer:
+    image: adminer
+    container_name: adminer
+    depends_on:
+      - postgres
+    ports:
+      - 8080:8080
+    environment:
+      ADMINER_DEFAULT_SERVER: postgres
+    volumes:
+      - ./plugins-enabled:/var/www/html/plugins-enabled
+
   # certbot:
   #   image: certbot/certbot
   #   container_name: certbot

@@ -3,7 +3,6 @@ import {
   Controller,
   Get,
   Param,
-  ParseIntPipe,
   Post,
   Query,
   UseGuards,
@@ -33,7 +32,7 @@ export class TasksController {
   }
 
   @Get(':id')
-  getById(@Param('id', ParseIntPipe) id: number): Promise<Task> {
+  getById(@Param('id') id: string): Promise<Task> {
     return this.taskService.getById(id);
   }
 
@@ -46,13 +45,13 @@ export class TasksController {
   }
 
   @Post(':id/delete')
-  delete(@Param('id', ParseIntPipe) id: number): Promise<void> {
+  delete(@Param('id') id: string): Promise<void> {
     return this.taskService.delete(id);
   }
 
   @Post(':id/editStatus')
   updateStatus(
-    @Param('id', ParseIntPipe) id: number,
+    @Param('id') id: string,
     @Body() updateTaskStatusDto: UpdateTaskStatusDto,
   ): Promise<Task> {
     return this.taskService.updateStatus(id, updateTaskStatusDto);

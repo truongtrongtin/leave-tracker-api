@@ -4,7 +4,6 @@ import {
   Get,
   HttpCode,
   Param,
-  ParseIntPipe,
   Post,
   Query,
   UseGuards,
@@ -65,14 +64,14 @@ export class LeavesController {
   }
 
   @Get(':id')
-  getById(@Param('id') id: number): Promise<Leave> {
+  getById(@Param('id') id: string): Promise<Leave> {
     return this.leavesService.findOneById(id);
   }
 
   @Post(':id/edit')
   @HttpCode(200)
   async update(
-    @Param('id', ParseIntPipe) id: number,
+    @Param('id') id: string,
     @CurrentUser() currentUser: User,
     @Body() updateLeaveDto: UpdateLeaveDto,
   ): Promise<Leave> {
@@ -96,7 +95,7 @@ export class LeavesController {
   @Post(':id/delete')
   @HttpCode(200)
   delete(
-    @Param('id') id: number,
+    @Param('id') id: string,
     @CurrentUser() currentUser: User,
   ): Promise<void> {
     return this.leavesService.delete(id, currentUser);
