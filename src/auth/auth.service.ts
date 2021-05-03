@@ -11,7 +11,7 @@ export class AuthService {
     private readonly userService: UsersService,
   ) {}
 
-  async getAccessToken(id: number): Promise<string> {
+  async getAccessToken(id: string): Promise<string> {
     const payload: TokenPayload = { id };
     return this.jwtService.sign(payload, {
       secret: process.env.JWT_ACCESS_TOKEN_SECRET,
@@ -19,7 +19,7 @@ export class AuthService {
     });
   }
 
-  async getRefreshToken(id: number): Promise<string> {
+  async getRefreshToken(id: string): Promise<string> {
     const payload = { id };
     return this.jwtService.sign(payload, {
       secret: process.env.JWT_REFRESH_TOKEN_SECRET,

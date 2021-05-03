@@ -38,7 +38,7 @@ export class UsersService {
     return user;
   }
 
-  async findById(id: number): Promise<User> {
+  async findById(id: string): Promise<User> {
     const user = await this.userRepository.findOne(id);
     if (!user) {
       throw new NotFoundException(`user is not found`);
@@ -69,20 +69,20 @@ export class UsersService {
     return user;
   }
 
-  async setRefreshToken(refreshToken: string, id: number): Promise<void> {
+  async setRefreshToken(refreshToken: string, id: string): Promise<void> {
     const hashedRefreshToken = await bcrypt.hash(refreshToken, 10);
     const query = this.userRepository.createQueryBuilder('t');
-    query.update({ hashedRefreshToken }).where(id);
+    query.update({ hashedRefreshToken }).where({ id });
     await query.getResultList();
   }
 
-  async removeRefreshToken(id: number) {
+  async removeRefreshToken(id: string) {
     const query = this.userRepository.createQueryBuilder('t');
-    query.update({ hashedRefreshToken: null }).where(id);
+    query.update({ hashedRefreshToken: null }).where({ id });
     await query.getResultList();
   }
 
-  async update(id: number, updateUserDto: UpdateUserDto) {
+  async update(id: string, updateUserDto: UpdateUserDto) {
     const user = await this.findById(id);
     let password;
     if (updateUserDto.newPassword) {
@@ -93,7 +93,7 @@ export class UsersService {
     return user;
   }
 
-  async delete(id: number) {
+  async delete(id: string) {
     const user = await this.findById(id);
     await this.userRepository.removeAndFlush(user);
   }

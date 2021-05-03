@@ -4,7 +4,6 @@ import {
   Controller,
   Get,
   Param,
-  ParseIntPipe,
   Post,
   Req,
   UseGuards,
@@ -68,7 +67,7 @@ export class UsersController {
   }
 
   @Post(':id/delete')
-  delete(@Param('id', ParseIntPipe) id: number): Promise<void> {
+  delete(@Param('id') id: string): Promise<void> {
     return this.usersService.delete(id);
   }
 }

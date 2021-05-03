@@ -1,6 +1,4 @@
 import {
-  BeforeCreate,
-  BeforeUpdate,
   Collection,
   Entity,
   Enum,
