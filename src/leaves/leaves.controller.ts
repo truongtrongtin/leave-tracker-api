@@ -60,7 +60,7 @@ export class LeavesController {
     @CurrentUser() currentUser: User,
     @FullUrl() fullUrl: string,
   ): Promise<Pagination<Leave>> {
-    return this.leavesService.getMe(currentUser, fullUrl, filterDto);
+    return this.leavesService.getMe(currentUser.id, fullUrl, filterDto);
   }
 
   @Get(':id')

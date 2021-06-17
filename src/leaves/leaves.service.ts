@@ -76,7 +76,7 @@ export class LeavesService {
   }
 
   async getMe(
-    user: User,
+    userId: string,
     route: string,
     filterDto: GetLeavesFilterDto,
   ): Promise<Pagination<Leave>> {
@@ -89,7 +89,7 @@ export class LeavesService {
     } = filterDto;
 
     const [leaves, count] = await this.leaveRepository.findAndCount(
-      { user, ...(reason && { reason }) },
+      { user: userId, ...(reason && { reason }) },
       {
         orderBy: { [orderBy]: order },
         limit: limit,
