@@ -50,9 +50,18 @@ export class AuthController {
     @CurrentUser() currentUser: User,
     @Body() logInDto: LogInDto,
     @Res({ passthrough: true }) reply: FastifyReply,
-  ): Promise<void> {
-    const accessToken = await this.authService.getAccessToken(currentUser.id);
-    const refreshToken = await this.authService.getRefreshToken(currentUser.id);
+  ): Promise<User> {
+    const payload = {
+      id: currentUser.id,
+      firstName: currentUser.firstName,
+      lastName: currentUser.lastName,
+      email: currentUser.email,
+      role: currentUser.role,
+    };
+    const accessToken = await this.authService.generateAccessToken(payload);
+    const refreshToken = await this.authService.generateRefreshToken(
+      currentUser.id,
+    );
     reply
       .setCookie('Authentication', accessToken, {
         path: '/',
@@ -73,6 +82,7 @@ export class AuthController {
         }),
       });
     await this.usersService.setRefreshToken(refreshToken, currentUser.id);
+    return currentUser;
   }
 
   @Post('logout')
@@ -108,8 +118,12 @@ export class AuthController {
   async refresh(
     @CurrentUser() currentUser: User,
     @Res({ passthrough: true }) reply: FastifyReply,
-  ): Promise<void> {
-    const accessToken = await this.authService.getAccessToken(currentUser.id);
+  ): Promise<User> {
+    const payload: TokenPayload = {
+      id: currentUser.id,
+      role: currentUser.role,
+    };
+    const accessToken = await this.authService.generateAccessToken(payload);
     reply.setCookie('Authentication', accessToken, {
       path: '/',
       httpOnly: true,
@@ -119,11 +133,12 @@ export class AuthController {
         secure: true,
       }),
     });
+    return currentUser;
   }
 
   @Get('/me')
   @UseGuards(JwtAuthGuard)
-  getCurrentUser(@CurrentUser() currentUser: User): User {
-    return currentUser;
+  getCurrentUser(@CurrentUser() currentUser: User): Promise<User> {
+    return this.usersService.findById(currentUser.id);
   }
 }

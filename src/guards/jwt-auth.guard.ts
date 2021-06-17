@@ -1,7 +1,7 @@
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { Observable } from 'rxjs';
-import { UsersService } from '../users/users.service';
 import { AuthService } from '../auth/auth.service';
+import { UsersService } from '../users/users.service';
 
 @Injectable()
 export class JwtAuthGuard implements CanActivate {
@@ -17,9 +17,8 @@ export class JwtAuthGuard implements CanActivate {
       const req = context.switchToHttp().getRequest();
       const token = req.cookies['Authentication'];
       if (!token) return false;
-      const payload: TokenPayload = this.authService.verifyAccessToken(token);
-      const user = this.userService.findById(payload.id);
-      req.user = user;
+      const payload = this.authService.verifyAccessToken(token);
+      req.user = payload;
       return true;
     } catch (e) {
       return false;
