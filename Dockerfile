@@ -1,5 +1,5 @@
 FROM node:alpine AS development
-ENV NODE_OPTIONS=--max_old_space_size=4096
+ENV NODE_OPTIONS=--max_old_space_size=2048
 WORKDIR /app
 COPY package*.json ./
 RUN npm ci
