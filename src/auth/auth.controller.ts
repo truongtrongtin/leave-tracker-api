@@ -3,13 +3,17 @@ import {
   Body,
   Controller,
   Get,
+  NotFoundException,
   Post,
+  Query,
   Req,
   Res,
   UseGuards,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
+import { randomBytes } from 'crypto';
 import { FastifyReply, FastifyRequest } from 'fastify';
+import { FullUrl } from 'src/decorators/full-url.decorator';
 import { CurrentUser } from '../decorators/current-user.decorator';
 import { JwtAuthGuard } from '../guards/jwt-auth.guard';
 import { JwtRefreshGuard } from '../guards/jwt-refresh.guard';
@@ -47,21 +51,12 @@ export class AuthController {
   @Post('login')
   @UseGuards(LocalGuard)
   async logIn(
-    @CurrentUser() currentUser: User,
+    @CurrentUser() user: User,
     @Body() logInDto: LogInDto,
     @Res({ passthrough: true }) reply: FastifyReply,
   ): Promise<User> {
-    const payload = {
-      id: currentUser.id,
-      firstName: currentUser.firstName,
-      lastName: currentUser.lastName,
-      email: currentUser.email,
-      role: currentUser.role,
-    };
-    const accessToken = await this.authService.generateAccessToken(payload);
-    const refreshToken = await this.authService.generateRefreshToken(
-      currentUser.id,
-    );
+    const accessToken = await this.authService.generateAccessToken(user);
+    const refreshToken = await this.authService.generateRefreshToken(user.id);
     reply
       .setCookie('Authentication', accessToken, {
         path: '/',
@@ -81,8 +76,8 @@ export class AuthController {
           secure: true,
         }),
       });
-    await this.usersService.setRefreshToken(refreshToken, currentUser.id);
-    return currentUser;
+    await this.usersService.setRefreshToken(refreshToken, user.id);
+    return user;
   }
 
   @Post('logout')
@@ -119,11 +114,7 @@ export class AuthController {
     @CurrentUser() currentUser: User,
     @Res({ passthrough: true }) reply: FastifyReply,
   ): Promise<User> {
-    const payload: TokenPayload = {
-      id: currentUser.id,
-      role: currentUser.role,
-    };
-    const accessToken = await this.authService.generateAccessToken(payload);
+    const accessToken = await this.authService.generateAccessToken(currentUser);
     reply.setCookie('Authentication', accessToken, {
       path: '/',
       httpOnly: true,
@@ -136,9 +127,62 @@ export class AuthController {
     return currentUser;
   }
 
-  @Get('/me')
+  @Get('me')
   @UseGuards(JwtAuthGuard)
-  getCurrentUser(@CurrentUser() currentUser: User): Promise<User> {
-    return this.usersService.findById(currentUser.id);
+  getCurrentUser(@CurrentUser() currentUser: User): User {
+    return currentUser;
+  }
+
+  @Get('google')
+  generateGoogleAuthURL(@Res() reply: FastifyReply, @FullUrl() url: string) {
+    const googleAuthUrl = this.authService.getGoogleAuthURL(`${url}/callback`);
+    reply.status(302).redirect(googleAuthUrl);
+  }
+
+  @Get('google/callback')
+  async googleAuth(@Query('code') code: string, @Res() reply: FastifyReply) {
+    const googleUser = await this.authService.getGoogleUser(code);
+    if (
+      !googleUser.email ||
+      !googleUser.email ||
+      !googleUser.given_name ||
+      !googleUser.family_name
+    )
+      throw new NotFoundException();
+    let user;
+    try {
+      user = await this.usersService.getByEmail(googleUser.email);
+    } catch (error) {
+      user = await this.usersService.create({
+        email: googleUser.email,
+        firstName: googleUser.given_name,
+        lastName: googleUser.family_name,
+        password: randomBytes(20).toString('hex'),
+      });
+    }
+    const accessToken = await this.authService.generateAccessToken(user);
+    const refreshToken = await this.authService.generateRefreshToken(user.id);
+    await this.usersService.setRefreshToken(refreshToken, user.id);
+    reply
+      .setCookie('Authentication', accessToken, {
+        path: '/',
+        httpOnly: true,
+        maxAge: +process.env.JWT_ACCESS_TOKEN_EXPIRATION_TIME!,
+        ...(process.env.NODE_ENV === 'production' && {
+          sameSite: 'none',
+          secure: true,
+        }),
+      })
+      .setCookie('Refresh', refreshToken, {
+        path: '/',
+        httpOnly: true,
+        maxAge: +process.env.JWT_REFRESH_TOKEN_EXPIRATION_TIME!,
+        ...(process.env.NODE_ENV === 'production' && {
+          sameSite: 'none',
+          secure: true,
+        }),
+      })
+      .status(302)
+      .redirect(process.env.CLIENT_URL!);
   }
 }

@@ -7,15 +7,15 @@ import { MailerModule } from '@nestjs-modules/mailer';
     MailerModule.forRoot({
       transport: {
         // https://nodemailer.com/smtp/well-known
-        ...(process.env.NODE_ENV === 'development'
-          ? { host: 'mailhog', port: 1025 }
-          : {
+        ...(process.env.NODE_ENV === 'production'
+          ? {
               service: 'Gmail',
               auth: {
-                user: process.env.GOOGLE_EMAIL,
-                pass: process.env.GOOGLE_PASSWORD,
+                user: process.env.GMAIL,
+                pass: process.env.GMAIL_PASSWORD,
               },
-            }),
+            }
+          : { host: 'mailhog', port: 1025 }),
       },
       defaults: {
         from: 'Tin Truong <noreply@example.com>',
