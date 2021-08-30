@@ -2,6 +2,7 @@ import {
   Collection,
   Entity,
   Enum,
+  Filter,
   OneToMany,
   Property,
   Unique,
@@ -13,6 +14,7 @@ import { Leave } from '../leaves/leave.entity';
 import { Task } from '../tasks/task.entity';
 
 @Entity()
+@Filter({ name: 'isActive', cond: { deletedAt: { $eq: null } } })
 export class User extends BaseEntity {
   @Property()
   @Unique()
@@ -38,7 +40,10 @@ export class User extends BaseEntity {
   @Enum(() => Role)
   role: Role = Role.MEMBER;
 
-  @OneToMany(() => Leave, (leave) => leave.user)
+  @OneToMany(() => Leave, (leave) => leave.user, {
+    hidden: true,
+    orphanRemoval: true,
+  })
   leaves = new Collection<Leave>(this);
 
   @Property({ nullable: true })
@@ -46,6 +51,9 @@ export class User extends BaseEntity {
 
   @Property({ type: 'date', nullable: true })
   dateOfBirth?: Date;
+
+  @Property({ type: 'date', nullable: true })
+  deletedAt?: Date;
 
   constructor({
     email,

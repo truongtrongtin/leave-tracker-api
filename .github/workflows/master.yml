@@ -60,7 +60,7 @@ jobs:
               -v /var/run/docker.sock:/var/run/docker.sock \
               -v "$PWD:$PWD" \
               -w="$PWD" \
-              docker/compose pull nest
+              docker/compose pull -q nest
 
             docker run --rm \
               -v /var/run/docker.sock:/var/run/docker.sock \
@@ -68,6 +68,6 @@ jobs:
               -w="$PWD" \
               docker/compose up -d
 
-            docker exec nest npx mikro-orm migration:up
-
             docker image prune -f
+
+            docker exec nest node dist/migrate
