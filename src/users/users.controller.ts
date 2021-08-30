@@ -70,4 +70,9 @@ export class UsersController {
   delete(@Param('id') id: string): Promise<void> {
     return this.usersService.delete(id);
   }
+
+  @Post(':id/restore')
+  restore(@Param('id') id: string): Promise<User> {
+    return this.usersService.restore(id);
+  }
 }

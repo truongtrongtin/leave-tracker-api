@@ -21,7 +21,9 @@ export class UsersService {
   ) {}
 
   async getAll(): Promise<User[]> {
-    return await this.userRepository.findAll();
+    return await this.userRepository.findAll({
+      filters: ['isActive'],
+    });
   }
 
   async getAllDateOfBirths(): Promise<User[]> {
@@ -93,9 +95,22 @@ export class UsersService {
     return user;
   }
 
-  async delete(id: string) {
-    const user = await this.findById(id);
-    await this.userRepository.removeAndFlush(user);
+  async delete(id: string): Promise<void> {
+    // hard
+    // const user = await this.userRepository.findOneOrFail(id, ['leaves']);
+    // this.userRepository.removeAndFlush(user);
+
+    //soft
+    const user = await this.userRepository.findOneOrFail(id);
+    user.deletedAt = new Date();
+    this.userRepository.flush();
+  }
+
+  async restore(id: string): Promise<User> {
+    const user = await this.userRepository.findOneOrFail(id);
+    user.deletedAt = undefined;
+    this.userRepository.flush();
+    return user;
   }
 
   async updateAvatar(request: FastifyRequest, user: User) {

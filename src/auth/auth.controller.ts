@@ -13,7 +13,7 @@ import {
 import { ApiTags } from '@nestjs/swagger';
 import { randomBytes } from 'crypto';
 import { FastifyReply, FastifyRequest } from 'fastify';
-import { FullUrl } from 'src/decorators/full-url.decorator';
+import { FullUrl } from '../decorators/full-url.decorator';
 import { CurrentUser } from '../decorators/current-user.decorator';
 import { JwtAuthGuard } from '../guards/jwt-auth.guard';
 import { JwtRefreshGuard } from '../guards/jwt-refresh.guard';
