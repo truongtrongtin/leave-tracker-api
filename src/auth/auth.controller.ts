@@ -6,15 +6,14 @@ import {
   NotFoundException,
   Post,
   Query,
-  Req,
   Res,
   UseGuards,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { randomBytes } from 'crypto';
-import { FastifyReply, FastifyRequest } from 'fastify';
-import { FullUrl } from '../decorators/full-url.decorator';
+import { FastifyReply } from 'fastify';
 import { CurrentUser } from '../decorators/current-user.decorator';
+import { FullUrl } from '../decorators/full-url.decorator';
 import { JwtAuthGuard } from '../guards/jwt-auth.guard';
 import { JwtRefreshGuard } from '../guards/jwt-refresh.guard';
 import { LocalGuard } from '../guards/local.guard';
@@ -36,7 +35,7 @@ export class AuthController {
   @Post('signup')
   async signUp(
     @Body() signUpDto: SignUpDto,
-    @Req() request: FastifyRequest,
+    // @Req() request: FastifyRequest,
   ): Promise<User> {
     // const ip = request.ip;
     return await this.usersService.create(signUpDto);
