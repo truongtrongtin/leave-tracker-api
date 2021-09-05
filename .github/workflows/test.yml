@@ -26,7 +26,7 @@ jobs:
 
       - name: Install
         if: steps.npm-cache.outputs.cache-hit != 'true'
-        run: npm i --ignore-scripts
+        run: npm ci --ignore-scripts
 
       - name: Set commit range variables
         run: |
@@ -60,7 +60,7 @@ jobs:
 
       - name: Install
         if: steps.npm-cache.outputs.cache-hit != 'true'
-        run: npm i --ignore-scripts
+        run: npm ci --ignore-scripts
 
       - name: Test
         run: npm test
