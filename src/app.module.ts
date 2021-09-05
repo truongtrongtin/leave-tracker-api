@@ -8,7 +8,7 @@ import { EventsModule } from './events/events.module';
 import { LeavesModule } from './leaves/leaves.module';
 import { MailModule } from './mail/mail.module';
 import { TasksModule } from './tasks/tasks.module';
-const fsStore = require('cache-manager-fs-hash');
+import * as fsStore from 'cache-manager-fs-hash';
 
 @Module({
   controllers: [AppController],

@@ -32,7 +32,7 @@ export class AuthService {
     });
   }
 
-  verifyAccessToken(token: string) {
+  verifyAccessToken(token: string): User & { iat: string; exp: string } {
     return this.jwtService.verify(token, {
       secret: process.env.JWT_ACCESS_TOKEN_SECRET,
     });
@@ -43,9 +43,12 @@ export class AuthService {
       secret: process.env.JWT_REFRESH_TOKEN_SECRET,
     });
     const user = await this.userService.findById(payload.id);
+    if (!user.hashedRefreshToken) {
+      throw new BadRequestException('Hashed refresh token not found');
+    }
     const isRefreshTokenMatching = await bcrypt.compare(
       token,
-      user.hashedRefreshToken!,
+      user.hashedRefreshToken,
     );
     if (!isRefreshTokenMatching) throw new BadRequestException();
     return user;
