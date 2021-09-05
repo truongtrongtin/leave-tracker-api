@@ -4,7 +4,10 @@ import mikroOrmConfig from './mikro-orm.config';
 (async () => {
   const orm = await MikroORM.init({
     ...mikroOrmConfig,
-    migrations: { path: 'dist/migrations' },
+    migrations: {
+      path: 'dist/migrations',
+      pattern: /^[\w-]+\d+\.js$/,
+    },
   });
 
   const migrator = orm.getMigrator();
