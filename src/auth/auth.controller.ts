@@ -9,9 +9,11 @@ import {
   Res,
   UseGuards,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { ApiTags } from '@nestjs/swagger';
 import { randomBytes } from 'crypto';
 import { FastifyReply } from 'fastify';
+import { Environment } from 'src/configs/env.validate';
 import { CurrentUser } from '../decorators/current-user.decorator';
 import { FullUrl } from '../decorators/full-url.decorator';
 import { JwtAuthGuard } from '../guards/jwt-auth.guard';
@@ -30,6 +32,7 @@ export class AuthController {
     private readonly authService: AuthService,
     private readonly usersService: UsersService,
     private readonly mailerService: MailerService,
+    private readonly configService: ConfigService,
   ) {}
 
   @Post('signup')
@@ -60,8 +63,8 @@ export class AuthController {
       .setCookie('Authentication', accessToken, {
         path: '/',
         httpOnly: true,
-        maxAge: +process.env.JWT_ACCESS_TOKEN_EXPIRATION_TIME!,
-        ...(process.env.NODE_ENV === 'production' && {
+        maxAge: this.configService.get('JWT_ACCESS_TOKEN_EXPIRATION_TIME'),
+        ...(this.configService.get('NODE_ENV') === Environment.Production && {
           sameSite: 'none',
           secure: true,
         }),
@@ -69,8 +72,8 @@ export class AuthController {
       .setCookie('Refresh', refreshToken, {
         path: '/',
         httpOnly: true,
-        maxAge: +process.env.JWT_REFRESH_TOKEN_EXPIRATION_TIME!,
-        ...(process.env.NODE_ENV === 'production' && {
+        maxAge: this.configService.get('JWT_REFRESH_TOKEN_EXPIRATION_TIME'),
+        ...(this.configService.get('NODE_ENV') === Environment.Production && {
           sameSite: 'none',
           secure: true,
         }),
@@ -91,7 +94,7 @@ export class AuthController {
         path: '/',
         httpOnly: true,
         maxAge: 0,
-        ...(process.env.NODE_ENV === 'production' && {
+        ...(this.configService.get('NODE_ENV') === Environment.Production && {
           sameSite: 'none',
           secure: true,
         }),
@@ -100,7 +103,7 @@ export class AuthController {
         path: '/',
         httpOnly: true,
         maxAge: 0,
-        ...(process.env.NODE_ENV === 'production' && {
+        ...(this.configService.get('NODE_ENV') === Environment.Production && {
           sameSite: 'none',
           secure: true,
         }),
@@ -117,8 +120,8 @@ export class AuthController {
     reply.setCookie('Authentication', accessToken, {
       path: '/',
       httpOnly: true,
-      maxAge: +process.env.JWT_ACCESS_TOKEN_EXPIRATION_TIME!,
-      ...(process.env.NODE_ENV === 'production' && {
+      maxAge: this.configService.get('JWT_ACCESS_TOKEN_EXPIRATION_TIME'),
+      ...(this.configService.get('NODE_ENV') === Environment.Production && {
         sameSite: 'none',
         secure: true,
       }),
@@ -166,8 +169,8 @@ export class AuthController {
       .setCookie('Authentication', accessToken, {
         path: '/',
         httpOnly: true,
-        maxAge: +process.env.JWT_ACCESS_TOKEN_EXPIRATION_TIME!,
-        ...(process.env.NODE_ENV === 'production' && {
+        maxAge: this.configService.get('JWT_ACCESS_TOKEN_EXPIRATION_TIME'),
+        ...(this.configService.get('NODE_ENV') === Environment.Production && {
           sameSite: 'none',
           secure: true,
         }),
@@ -175,13 +178,13 @@ export class AuthController {
       .setCookie('Refresh', refreshToken, {
         path: '/',
         httpOnly: true,
-        maxAge: +process.env.JWT_REFRESH_TOKEN_EXPIRATION_TIME!,
-        ...(process.env.NODE_ENV === 'production' && {
+        maxAge: this.configService.get('JWT_REFRESH_TOKEN_EXPIRATION_TIME'),
+        ...(this.configService.get('NODE_ENV') === Environment.Production && {
           sameSite: 'none',
           secure: true,
         }),
       })
       .status(302)
-      .redirect(process.env.CLIENT_URL!);
+      .redirect(this.configService.get('CLIENT_URL'));
   }
 }
