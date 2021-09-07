@@ -9,6 +9,7 @@ import fastifyCookie from 'fastify-cookie';
 import fastifyMultipart from 'fastify-multipart';
 import { ValidationPipe } from '@nestjs/common';
 import { WsAdapter } from '@nestjs/platform-ws';
+import { ConfigService } from '@nestjs/config';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(
@@ -16,7 +17,6 @@ async function bootstrap() {
     new FastifyAdapter({ trustProxy: true }),
   );
   app.useGlobalPipes(new ValidationPipe({ transform: true }));
-  // app.setGlobalPrefix('v1');
   app.enableCors({
     origin: true,
     credentials: true,
@@ -33,7 +33,9 @@ async function bootstrap() {
     .build();
   const document = SwaggerModule.createDocument(app, options);
   SwaggerModule.setup('doc', app, document);
+  const configService = app.get(ConfigService);
+  const port = configService.get<number>('PORT');
 
-  await app.listen(process.env.PORT!, '0.0.0.0');
+  await app.listen(port, '0.0.0.0');
 }
 bootstrap();

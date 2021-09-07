@@ -1,11 +1,15 @@
 import { CACHE_MANAGER, Inject, Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { Cron } from '@nestjs/schedule';
 import { Cache } from 'cache-manager';
 import { google } from 'googleapis';
 
 @Injectable()
 export class AppService {
-  constructor(@Inject(CACHE_MANAGER) private cacheManager: Cache) {}
+  constructor(
+    private configService: ConfigService,
+    @Inject(CACHE_MANAGER) private cacheManager: Cache,
+  ) {}
 
   getHello(): string {
     return `Read API document <a href="/doc">here</>`;
@@ -14,7 +18,7 @@ export class AppService {
   @Cron('0 0 0 * * *') // everyday
   async fetchAndCacheHolidays() {
     const auth = new google.auth.GoogleAuth({
-      keyFilename: process.env.GOOGLE_CALENDAR_KEY_PATH,
+      keyFilename: this.configService.get<string>('GOOGLE_CALENDAR_KEY_PATH'),
       scopes: ['https://www.googleapis.com/auth/calendar.readonly'],
     });
     const authClient = await auth.getClient();

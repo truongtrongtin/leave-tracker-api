@@ -13,7 +13,7 @@ export class EventsGateway implements OnGatewayConnection {
   server!: Server;
 
   async handleConnection(socket: WebSocket) {
-    console.log(socket);
+    console.log('socket.OPEN', socket.OPEN);
   }
 
   @SubscribeMessage('events')

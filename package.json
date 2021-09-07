@@ -22,7 +22,7 @@
     "prepare": "husky install"
   },
   "dependencies": {
-    "@google-cloud/storage": "^5.14.0",
+    "@google-cloud/storage": "^5.14.1",
     "@mikro-orm/cli": "^4.5.9",
     "@mikro-orm/core": "^4.5.9",
     "@mikro-orm/nestjs": "^4.3.0",
@@ -30,6 +30,7 @@
     "@nestjs-modules/mailer": "^1.6.0",
     "@nestjs/axios": "^0.0.1",
     "@nestjs/common": "^8.0.6",
+    "@nestjs/config": "^1.0.1",
     "@nestjs/core": "^8.0.6",
     "@nestjs/jwt": "^8.0.0",
     "@nestjs/platform-fastify": "^8.0.6",
@@ -45,7 +46,7 @@
     "class-validator": "^0.13.1",
     "fastify-cookie": "^5.3.1",
     "fastify-multipart": "^4.0.7",
-    "fastify-swagger": "^4.9.1",
+    "fastify-swagger": "^4.11.0",
     "googleapis": "^85.0.0",
     "handlebars": "^4.7.7",
     "reflect-metadata": "^0.1.13",
@@ -64,18 +65,18 @@
     "@types/cron": "^1.7.3",
     "@types/inline-css": "^3.0.1",
     "@types/jest": "^27.0.1",
-    "@types/node": "^16.7.10",
+    "@types/node": "^16.9.1",
     "@types/nodemailer": "^6.4.4",
     "@types/supertest": "^2.0.11",
-    "@typescript-eslint/eslint-plugin": "^4.30.0",
-    "@typescript-eslint/parser": "^4.30.0",
+    "@typescript-eslint/eslint-plugin": "^4.31.0",
+    "@typescript-eslint/parser": "^4.31.0",
     "eslint": "^7.32.0",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-prettier": "^4.0.0",
     "husky": "^7.0.2",
-    "jest": "^27.1.0",
+    "jest": "^27.1.1",
     "lint-staged": "^11.1.2",
-    "prettier": "^2.3.2",
+    "prettier": "^2.4.0",
     "supertest": "^6.1.6",
     "ts-jest": "^27.0.5",
     "ts-loader": "^9.2.5",
@@ -98,7 +99,9 @@
       "node": true,
       "jest": true
     },
-    "ignorePatterns": ["**/migrations"],
+    "ignorePatterns": [
+      "**/migrations"
+    ],
     "rules": {
       "@typescript-eslint/interface-name-prefix": "off",
       "@typescript-eslint/explicit-function-return-type": "off",
@@ -109,6 +112,14 @@
   "prettier": {
     "singleQuote": true,
     "trailingComma": "all"
+  },
+  "commitlint": {
+    "extends": [
+      "@commitlint/config-conventional"
+    ]
+  },
+  "lint-staged": {
+    "*.ts": "eslint --fix"
   },
   "jest": {
     "moduleFileExtensions": [
@@ -133,13 +144,5 @@
       "./src/mikro-orm.config.ts",
       "./dist/mikro-orm.config.js"
     ]
-  },
-  "commitlint": {
-    "extends": [
-      "@commitlint/config-conventional"
-    ]
-  },
-  "lint-staged": {
-    "*.ts": "eslint --fix"
   }
 }

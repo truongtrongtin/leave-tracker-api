@@ -1,6 +1,7 @@
 import { wrap } from '@mikro-orm/core';
 import { HttpService } from '@nestjs/axios';
 import { BadRequestException, Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
 import { google } from 'googleapis';
@@ -13,34 +14,39 @@ export class AuthService {
     private readonly httpService: HttpService,
     private readonly jwtService: JwtService,
     private readonly userService: UsersService,
+    private readonly configService: ConfigService,
   ) {}
   private oauth2Client = new google.auth.OAuth2();
 
   async generateAccessToken(user: User): Promise<string> {
     const tokenPayload = wrap(user).toObject();
     return this.jwtService.sign(tokenPayload, {
-      secret: process.env.JWT_ACCESS_TOKEN_SECRET,
-      expiresIn: `${process.env.JWT_ACCESS_TOKEN_EXPIRATION_TIME}s`,
+      secret: this.configService.get('JWT_ACCESS_TOKEN_SECRET'),
+      expiresIn: `${this.configService.get(
+        'JWT_ACCESS_TOKEN_EXPIRATION_TIME',
+      )}s`,
     });
   }
 
   async generateRefreshToken(id: string): Promise<string> {
     const payload = { id };
     return this.jwtService.sign(payload, {
-      secret: process.env.JWT_REFRESH_TOKEN_SECRET,
-      expiresIn: `${process.env.JWT_REFRESH_TOKEN_EXPIRATION_TIME}s`,
+      secret: this.configService.get('JWT_REFRESH_TOKEN_SECRET'),
+      expiresIn: `${this.configService.get(
+        'JWT_REFRESH_TOKEN_EXPIRATION_TIME',
+      )}s`,
     });
   }
 
   verifyAccessToken(token: string): User & { iat: string; exp: string } {
     return this.jwtService.verify(token, {
-      secret: process.env.JWT_ACCESS_TOKEN_SECRET,
+      secret: this.configService.get('JWT_ACCESS_TOKEN_SECRET'),
     });
   }
 
   async verifyRefreshToken(token: string): Promise<User> {
     const payload = this.jwtService.verify(token, {
-      secret: process.env.JWT_REFRESH_TOKEN_SECRET,
+      secret: this.configService.get('JWT_REFRESH_TOKEN_SECRET'),
     });
     const user = await this.userService.findById(payload.id);
     if (!user.hashedRefreshToken) {
@@ -56,8 +62,8 @@ export class AuthService {
 
   getGoogleAuthURL(callbackUrl: string): string {
     this.oauth2Client = new google.auth.OAuth2(
-      process.env.GOOGLE_OAUTH2_CLIENT_ID,
-      process.env.GOOGLE_OAUTH2_CLIENT_SECRET,
+      this.configService.get('GOOGLE_OAUTH2_CLIENT_ID'),
+      this.configService.get('GOOGLE_OAUTH2_CLIENT_SECRET'),
       callbackUrl,
     );
     return this.oauth2Client.generateAuthUrl({

@@ -33,10 +33,10 @@ jobs:
           echo "PR_HEAD=${{ github.event.pull_request.head.sha }}" >> $GITHUB_ENV
           echo "PR_BASE=${{ github.event.pull_request.base.sha }}" >> $GITHUB_ENV
 
-      - name: Conventional commit check
+      - name: Commit lint
         run: npx commitlint --from $PR_BASE --to $PR_HEAD
 
-      - name: Lint
+      - name: Code lint
         run: npm run lint
 
   test:
@@ -68,7 +68,7 @@ jobs:
   deploy:
     name: Deploy
     runs-on: ubuntu-latest
-    needs: [ lint, test ]
+    needs: [lint, test]
     steps:
       - name: Checkout source code
         uses: actions/checkout@v2
@@ -104,13 +104,13 @@ jobs:
               -v /var/run/docker.sock:/var/run/docker.sock \
               -v "$PWD:$PWD" \
               -w="$PWD" \
-              docker/compose pull -q nest
+              docker/compose:1.29.2 pull -q nest
 
             docker run --rm \
               -v /var/run/docker.sock:/var/run/docker.sock \
               -v "$PWD:$PWD" \
               -w="$PWD" \
-              docker/compose up -d
+              docker/compose:1.29.2 up -d
 
             docker image prune -f
 

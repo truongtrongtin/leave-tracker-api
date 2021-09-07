@@ -7,6 +7,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import * as bcrypt from 'bcryptjs';
 import { FastifyRequest } from 'fastify';
 import { SignUpDto } from '../auth/dto/sign-up.dto';
@@ -18,6 +19,7 @@ export class UsersService {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: EntityRepository<User>,
+    private readonly configService: ConfigService,
   ) {}
 
   async getAll(): Promise<User[]> {
@@ -117,9 +119,9 @@ export class UsersService {
     const data = await request.file();
     const buffer = await data.toBuffer();
     const storage = new Storage({
-      keyFilename: process.env.GOOGLE_STORAGE_KEY_PATH,
+      keyFilename: this.configService.get('GOOGLE_STORAGE_KEY_PATH'),
     });
-    const bucket = storage.bucket(process.env.BUCKET_NAME!);
+    const bucket = storage.bucket(this.configService.get('BUCKET_NAME'));
 
     // if (user.avatar) {
     //   const currentFileName = path.basename(user.avatar);
