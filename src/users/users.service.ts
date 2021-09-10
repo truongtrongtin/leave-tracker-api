@@ -22,8 +22,8 @@ export class UsersService {
     private readonly configService: ConfigService,
   ) {}
 
-  async getAll(): Promise<User[]> {
-    return await this.userRepository.findAll({
+  getAll(): Promise<User[]> {
+    return this.userRepository.findAll({
       filters: ['isActive'],
     });
   }
@@ -34,7 +34,7 @@ export class UsersService {
     return query.execute();
   }
 
-  async getByEmail(email: string): Promise<User> {
+  async findByEmail(email: string): Promise<User> {
     const user = await this.userRepository.findOne({ email });
     if (!user) {
       throw new NotFoundException(`user is not found`);
@@ -51,7 +51,7 @@ export class UsersService {
   }
 
   async getAuthenticated(email: string, password: string): Promise<User> {
-    const user = await this.getByEmail(email);
+    const user = await this.findByEmail(email);
     const isRightPassword = await user.checkPassword(password);
     if (!isRightPassword) {
       throw new BadRequestException(`wrong password`);
@@ -97,7 +97,7 @@ export class UsersService {
     return user;
   }
 
-  async delete(id: string): Promise<void> {
+  async deleteOneById(id: string): Promise<void> {
     // hard
     // const user = await this.userRepository.findOneOrFail(id, ['leaves']);
     // this.userRepository.removeAndFlush(user);

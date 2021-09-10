@@ -13,7 +13,7 @@ import { ConfigService } from '@nestjs/config';
 import { ApiTags } from '@nestjs/swagger';
 import { randomBytes } from 'crypto';
 import { FastifyReply } from 'fastify';
-import { Environment } from 'src/configs/env.validate';
+import { Environment } from '../configs/env.validate';
 import { CurrentUser } from '../decorators/current-user.decorator';
 import { FullUrl } from '../decorators/full-url.decorator';
 import { JwtAuthGuard } from '../guards/jwt-auth.guard';
@@ -153,7 +153,7 @@ export class AuthController {
       throw new NotFoundException();
     let user;
     try {
-      user = await this.usersService.getByEmail(googleUser.email);
+      user = await this.usersService.findByEmail(googleUser.email);
     } catch (error) {
       user = await this.usersService.create({
         email: googleUser.email,

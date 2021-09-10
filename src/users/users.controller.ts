@@ -35,7 +35,7 @@ export class UsersController {
 
   @Get(':email')
   getByEmail(@Param('email') email: string): Promise<User> {
-    return this.usersService.getByEmail(email);
+    return this.usersService.findByEmail(email);
   }
 
   @Post('edit/me')
@@ -68,7 +68,7 @@ export class UsersController {
 
   @Post(':id/delete')
   delete(@Param('id') id: string): Promise<void> {
-    return this.usersService.delete(id);
+    return this.usersService.deleteOneById(id);
   }
 
   @Post(':id/restore')
