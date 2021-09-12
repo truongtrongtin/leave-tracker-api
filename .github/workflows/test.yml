@@ -87,9 +87,9 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           push: true
-          tags: truongtrongtin/learn-nestjs:latest
-          cache-from: type=registry,ref=truongtrongtin/learn-nestjs:buildcache
-          cache-to: type=registry,ref=truongtrongtin/learn-nestjs:buildcache,mode=max
+          tags: truongtrongtin/leave-tracker-api:latest
+          cache-from: type=registry,ref=truongtrongtin/leave-tracker-api:buildcache
+          cache-to: type=registry,ref=truongtrongtin/leave-tracker-api:buildcache,mode=max
 
       - name: Executing remote ssh commands using password
         uses: appleboy/ssh-action@master
@@ -98,13 +98,13 @@ jobs:
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.KEY }}
           script: |
-            cd ~/learn-nestjs
+            cd ~/leave-tracker-api
 
             docker run --rm \
               -v /var/run/docker.sock:/var/run/docker.sock \
               -v "$PWD:$PWD" \
               -w="$PWD" \
-              docker/compose:1.29.2 pull -q nest
+              docker/compose:1.29.2 pull -q leave-tracker-api
 
             docker run --rm \
               -v /var/run/docker.sock:/var/run/docker.sock \
@@ -114,4 +114,4 @@ jobs:
 
             docker image prune -f
 
-            docker exec nest node dist/migrate
+            docker exec leave-tracker-api node dist/migrate
