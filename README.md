@@ -46,7 +46,7 @@ KEY
 ```bash
 $ cd ~
 
-$ mkdir learn-nestjs
+$ mkdir leave-tracker-api
 ```
 
 - Replace all domain in `nginx.conf` and `nginx.second.conf` with your domain
@@ -54,9 +54,9 @@ $ mkdir learn-nestjs
 - From local, copy all files in `deployment` folder, `credentials` folder and `.env` into app folder in VPS, remember to set `production` environment variables
 
 ```bash
-$ scp -r deployment/ user@host:~/learn-nestjs
+$ scp -r deployment/ user@host:~/leave-tracker-api
 
-$ scp .env user@host:~/learn-nestjs
+$ scp .env user@host:~/leave-tracker-api
 ```
 
 - Make a small change and push to github to build image to docker hub and auto get ssl certificate in container for you

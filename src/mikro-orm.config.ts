@@ -4,7 +4,7 @@ const mikroOrmConfig: Options = {
   entities: ['dist/**/*.entity.js'],
   entitiesTs: ['src/**/*.entity.ts'],
   type: 'postgresql',
-  host: 'postgres',
+  ...(process.env.NODE_ENV === 'production' ? { host: 'postgres' } : {}),
   port: 5432,
   user: 'postgres',
   dbName: process.env.DATABASE_NAME,
