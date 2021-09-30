@@ -18,7 +18,7 @@ import { Environment } from '../configs/env.validate';
                   pass: configService.get('GMAIL_PASSWORD'),
                 },
               }
-            : { host: 'mailhog', port: 1025 }),
+            : { port: 1025 }), // mailhog
         },
         defaults: {
           from: 'Tin Truong <noreply@example.com>',

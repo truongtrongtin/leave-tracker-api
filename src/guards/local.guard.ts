@@ -4,7 +4,7 @@ import { UsersService } from '../users/users.service';
 
 @Injectable()
 export class LocalGuard implements CanActivate {
-  constructor(private userService: UsersService) {}
+  constructor(private usersService: UsersService) {}
 
   canActivate(
     context: ExecutionContext,
@@ -12,7 +12,7 @@ export class LocalGuard implements CanActivate {
     try {
       const req = context.switchToHttp().getRequest();
       const { email, password } = req.body;
-      const user = this.userService.getAuthenticated(email, password);
+      const user = this.usersService.getAuthenticated(email, password);
       if (!user) return false;
       req.user = user;
       return true;

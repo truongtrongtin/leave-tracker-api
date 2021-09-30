@@ -11,8 +11,3 @@ services:
       - ${PORT}:${PORT}
       - 9229:9229
     command: npm run start:dev
-    depends_on:
-      - postgres
-
-volumes:
-  postgres-data:

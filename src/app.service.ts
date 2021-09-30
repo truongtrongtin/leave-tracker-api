@@ -22,10 +22,7 @@ export class AppService {
       scopes: ['https://www.googleapis.com/auth/calendar.readonly'],
     });
     const authClient = await auth.getClient();
-    const calendar = google.calendar({
-      version: 'v3',
-      auth: authClient,
-    });
+    const calendar = google.calendar({ version: 'v3', auth: authClient });
     const holidayResponse = await calendar.events.list({
       calendarId: 'en.vietnamese#holiday@group.v.calendar.google.com',
       singleEvents: true,

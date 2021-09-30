@@ -8,10 +8,14 @@ import {
   Unique,
 } from '@mikro-orm/core';
 import { ApiHideProperty } from '@nestjs/swagger';
-import * as bcrypt from 'bcryptjs';
 import { BaseEntity } from '../base.entity';
 import { Leave } from '../leaves/leave.entity';
 import { Task } from '../tasks/task.entity';
+
+export enum Role {
+  MEMBER = 'MEMBER',
+  ADMIN = 'ADMIN',
+}
 
 @Entity()
 @Filter({ name: 'isActive', cond: { deletedAt: { $eq: null } } })
@@ -75,13 +79,4 @@ export class User extends BaseEntity {
     this.lastName = lastName;
     this.dateOfBirth = dateOfBirth;
   }
-
-  async checkPassword(plainPassword: string): Promise<boolean> {
-    return await bcrypt.compare(plainPassword, this.password);
-  }
-}
-
-export enum Role {
-  MEMBER = 'MEMBER',
-  ADMIN = 'ADMIN',
 }

@@ -8,9 +8,13 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import * as bcrypt from 'bcryptjs';
-import { FastifyRequest } from 'fastify';
+import * as bcrypt from 'bcrypt';
+import * as crypto from 'crypto';
+import { MultipartFile } from 'fastify-multipart';
+// import * as stream from 'stream';
+// import * as util from 'util';
 import { SignUpDto } from '../auth/dto/sign-up.dto';
+import { UpdatePasswordDto } from './dto/update-password.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './user.entity';
 
@@ -52,7 +56,7 @@ export class UsersService {
 
   async getAuthenticated(email: string, password: string): Promise<User> {
     const user = await this.findByEmail(email);
-    const isRightPassword = await user.checkPassword(password);
+    const isRightPassword = await bcrypt.compare(password, user.password);
     if (!isRightPassword) {
       throw new BadRequestException(`wrong password`);
     }
@@ -73,7 +77,7 @@ export class UsersService {
     return user;
   }
 
-  async setRefreshToken(refreshToken: string, id: string): Promise<void> {
+  async saveRefreshToken(refreshToken: string, id: string): Promise<void> {
     const hashedRefreshToken = await bcrypt.hash(refreshToken, 10);
     const query = this.userRepository.createQueryBuilder('t');
     query.update({ hashedRefreshToken }).where({ id });
@@ -88,21 +92,26 @@ export class UsersService {
 
   async update(id: string, updateUserDto: UpdateUserDto) {
     const user = await this.findById(id);
-    let password;
-    if (updateUserDto.newPassword) {
-      password = await bcrypt.hash(updateUserDto.newPassword, 10);
-    }
-    wrap(user).assign({ ...updateUserDto, ...(password && { password }) });
+    wrap(user).assign(updateUserDto);
     this.userRepository.flush();
     return user;
   }
 
+  async updatePassword(email: string, updatePasswordDto: UpdatePasswordDto) {
+    const { currentPassword, newPassword } = updatePasswordDto;
+    const user = await this.getAuthenticated(email, currentPassword);
+    const password = await bcrypt.hash(newPassword, 10);
+    user.password = password;
+    await this.userRepository.flush();
+    return user;
+  }
+
   async deleteOneById(id: string): Promise<void> {
-    // hard
+    // hard delete
     // const user = await this.userRepository.findOneOrFail(id, ['leaves']);
     // this.userRepository.removeAndFlush(user);
 
-    //soft
+    //soft delete
     const user = await this.userRepository.findOneOrFail(id);
     user.deletedAt = new Date();
     this.userRepository.flush();
@@ -115,31 +124,43 @@ export class UsersService {
     return user;
   }
 
-  async updateAvatar(request: FastifyRequest, user: User) {
-    const data = await request.file();
-    const buffer = await data.toBuffer();
+  async updateAvatar(fileData: MultipartFile, userId: string): Promise<User> {
     const storage = new Storage({
       keyFilename: this.configService.get('GOOGLE_STORAGE_KEY_PATH'),
     });
     const bucket = storage.bucket(this.configService.get('BUCKET_NAME'));
+    const user = await this.userRepository.findOneOrFail(userId);
 
-    // if (user.avatar) {
-    //   const currentFileName = path.basename(user.avatar);
-    //   await bucket.file(currentFileName).delete();
-    // }
-
-    // save to local
-    // const fileStream = data.file;
+    // save to local disk
+    // const fileStream = fileData.file;
     // const pipeline = util.promisify(stream.pipeline);
     // await pipeline(fileStream, fs.createWriteStream(`uploads/${fileName}`));
 
-    const newFile = bucket.file(data.filename);
-    await newFile.save(buffer, {
-      resumable: false,
+    // stream upload
+    // const fileStream = fileData.file;
+    // const fileName = fileData.filename;
+    // const pipeline = util.promisify(stream.pipeline);
+    // await pipeline(
+    //   fileStream,
+    //   bucket.file(`hehe/${fileName}`).createWriteStream(),
+    // );
+
+    // accumulate the file in memory! Be careful!
+    const fileName = fileData.filename;
+    const buffer = await fileData.toBuffer();
+    const objectName = `${crypto.randomUUID()}/${fileName}`;
+    await bucket.file(objectName).save(buffer, {
       gzip: true,
       metadata: { cacheControl: 'public, max-age=31536000' },
     });
-    user.avatar = `https://storage.googleapis.com/${bucket.name}/${data.filename}`;
+
+    // delete old avatar
+    if (user.avatar) {
+      const fileName = user.avatar.split(`${bucket.name}/`).pop();
+      await bucket.file(fileName).delete();
+    }
+
+    user.avatar = `https://storage.googleapis.com/${bucket.name}/${objectName}`;
     await this.userRepository.flush();
     return user;
   }

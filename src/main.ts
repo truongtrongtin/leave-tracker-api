@@ -17,11 +17,7 @@ async function bootstrap() {
     new FastifyAdapter({ trustProxy: true }),
   );
   app.useGlobalPipes(new ValidationPipe({ transform: true }));
-  app.enableCors({
-    origin: true,
-    credentials: true,
-    maxAge: 86400,
-  });
+  app.enableCors({ origin: true, credentials: true, maxAge: 86400 });
   app.register(fastifyCookie);
   app.register(fastifyMultipart);
   app.useWebSocketAdapter(new WsAdapter(app));

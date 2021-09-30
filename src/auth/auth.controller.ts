@@ -10,7 +10,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiConsumes, ApiTags } from '@nestjs/swagger';
 import { randomBytes } from 'crypto';
 import { FastifyReply } from 'fastify';
 import { Environment } from '../configs/env.validate';
@@ -41,16 +41,18 @@ export class AuthController {
     // @Req() request: FastifyRequest,
   ): Promise<User> {
     // const ip = request.ip;
-    return await this.usersService.create(signUpDto);
+    const user = await this.usersService.create(signUpDto);
     // this.mailerService.sendMail({
-    //   to: email,
-    //   subject: 'Welcome to HRM',
-    //   template: 'hello',
-    //   context: { email },
+    //   to: user.email,
+    //   subject: 'Welcome to Leave Tracker',
+    //   template: './hello',
+    //   context: { email: user.email },
     // });
+    return user;
   }
 
   @Post('login')
+  @ApiConsumes('application/x-www-form-urlencoded')
   @UseGuards(LocalGuard)
   async logIn(
     @CurrentUser() user: User,
@@ -59,6 +61,7 @@ export class AuthController {
   ): Promise<User> {
     const accessToken = await this.authService.generateAccessToken(user);
     const refreshToken = await this.authService.generateRefreshToken(user.id);
+    await this.usersService.saveRefreshToken(refreshToken, user.id);
     reply
       .setCookie('Authentication', accessToken, {
         path: '/',
@@ -78,7 +81,6 @@ export class AuthController {
           secure: true,
         }),
       });
-    await this.usersService.setRefreshToken(refreshToken, user.id);
     return user;
   }
 
@@ -129,12 +131,6 @@ export class AuthController {
     return currentUser;
   }
 
-  @Get('me')
-  @UseGuards(JwtAuthGuard)
-  getCurrentUser(@CurrentUser() currentUser: User): User {
-    return currentUser;
-  }
-
   @Get('google')
   generateGoogleAuthURL(@Res() reply: FastifyReply, @FullUrl() url: string) {
     const googleAuthUrl = this.authService.getGoogleAuthURL(`${url}/callback`);
@@ -164,7 +160,7 @@ export class AuthController {
     }
     const accessToken = await this.authService.generateAccessToken(user);
     const refreshToken = await this.authService.generateRefreshToken(user.id);
-    await this.usersService.setRefreshToken(refreshToken, user.id);
+    await this.usersService.saveRefreshToken(refreshToken, user.id);
     reply
       .setCookie('Authentication', accessToken, {
         path: '/',
