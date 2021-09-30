@@ -3,7 +3,7 @@ import { HttpService } from '@nestjs/axios';
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import * as bcrypt from 'bcryptjs';
+import * as bcrypt from 'bcrypt';
 import { google } from 'googleapis';
 import { User } from '../users/user.entity';
 import { UsersService } from '../users/users.service';

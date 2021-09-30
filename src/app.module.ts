@@ -16,7 +16,12 @@ import { TasksModule } from './tasks/tasks.module';
   controllers: [AppController],
   providers: [AppService],
   imports: [
-    ConfigModule.forRoot({ isGlobal: true, cache: true, validate }),
+    ConfigModule.forRoot({
+      isGlobal: true,
+      cache: true,
+      expandVariables: true,
+      validate,
+    }),
     CacheModule.register({ store: fsStore, path: 'cache' }),
     MikroOrmModule.forRoot(),
     ScheduleModule.forRoot(),
