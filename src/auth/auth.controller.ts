@@ -91,25 +91,7 @@ export class AuthController {
     @Res({ passthrough: true }) reply: FastifyReply,
   ): Promise<void> {
     await this.usersService.removeRefreshToken(currentUser.id);
-    reply
-      .setCookie('Authentication', '', {
-        path: '/',
-        httpOnly: true,
-        maxAge: 0,
-        ...(this.configService.get('NODE_ENV') === Environment.Production && {
-          sameSite: 'none',
-          secure: true,
-        }),
-      })
-      .setCookie('Refresh', '', {
-        path: '/',
-        httpOnly: true,
-        maxAge: 0,
-        ...(this.configService.get('NODE_ENV') === Environment.Production && {
-          sameSite: 'none',
-          secure: true,
-        }),
-      });
+    reply.clearCookie('Authentication').clearCookie('Refresh');
   }
 
   @Get('refresh')
@@ -147,7 +129,7 @@ export class AuthController {
       !googleUser.family_name
     )
       throw new NotFoundException();
-    let user;
+    let user: User;
     try {
       user = await this.usersService.findByEmail(googleUser.email);
     } catch (error) {
