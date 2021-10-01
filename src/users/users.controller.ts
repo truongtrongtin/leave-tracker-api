@@ -5,10 +5,14 @@ import {
   Param,
   Post,
   Req,
+  Res,
   UseGuards,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger';
-import { FastifyRequest } from 'fastify';
+import { FastifyReply, FastifyRequest } from 'fastify';
+import { AuthService } from '../auth/auth.service';
+import { Environment } from '../configs/env.validate';
 import { CurrentUser } from '../decorators/current-user.decorator';
 import { JwtAuthGuard } from '../guards/jwt-auth.guard';
 import { UpdateAvatarDto } from './dto/update-avatar.dto';
@@ -21,7 +25,11 @@ import { UsersService } from './users.service';
 @UseGuards(JwtAuthGuard)
 @ApiTags('users')
 export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(
+    private readonly usersService: UsersService,
+    private readonly authService: AuthService,
+    private readonly configService: ConfigService,
+  ) {}
 
   @Get()
   getAll(): Promise<User[]> {
@@ -47,8 +55,20 @@ export class UsersController {
   async updateInfo(
     @Body() updateUserDto: UpdateUserDto,
     @CurrentUser() currentUser: User,
+    @Res({ passthrough: true }) reply: FastifyReply,
   ): Promise<User> {
-    return this.usersService.update(currentUser.id, updateUserDto);
+    const user = await this.usersService.update(currentUser.id, updateUserDto);
+    const accessToken = await this.authService.generateAccessToken(user);
+    reply.setCookie('Authentication', accessToken, {
+      path: '/',
+      httpOnly: true,
+      maxAge: this.configService.get('JWT_ACCESS_TOKEN_EXPIRATION_TIME'),
+      ...(this.configService.get('NODE_ENV') === Environment.Production && {
+        sameSite: 'none',
+        secure: true,
+      }),
+    });
+    return user;
   }
 
   @Post('me/updatePassword')
@@ -68,9 +88,21 @@ export class UsersController {
   async updateAvatar(
     @Req() request: FastifyRequest,
     @CurrentUser() currentUser: User,
+    @Res({ passthrough: true }) reply: FastifyReply,
   ): Promise<User> {
     const fileData = await request.file();
-    return this.usersService.updateAvatar(fileData, currentUser.id);
+    const user = await this.usersService.updateAvatar(fileData, currentUser.id);
+    const accessToken = await this.authService.generateAccessToken(user);
+    reply.setCookie('Authentication', accessToken, {
+      path: '/',
+      httpOnly: true,
+      maxAge: this.configService.get('JWT_ACCESS_TOKEN_EXPIRATION_TIME'),
+      ...(this.configService.get('NODE_ENV') === Environment.Production && {
+        sameSite: 'none',
+        secure: true,
+      }),
+    });
+    return user;
   }
 
   @Post(':id/delete')
