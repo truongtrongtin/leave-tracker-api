@@ -10,7 +10,7 @@ import {
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { CurrentUser } from '../decorators/current-user.decorator';
-import { FullUrl } from '../decorators/full-url.decorator';
+import { RequestUrl } from '../decorators/request-url.decorator';
 import { JwtAuthGuard } from '../guards/jwt-auth.guard';
 import { Pagination } from '../pagination';
 import { Role, User } from '../users/user.entity';
@@ -49,7 +49,7 @@ export class LeavesController {
   @Get()
   getMany(
     @Query() filterDto: GetLeavesFilterDto,
-    @FullUrl() fullUrl: string,
+    @RequestUrl() fullUrl: string,
   ): Promise<Pagination<Leave>> {
     return this.leavesService.getMany(fullUrl, filterDto);
   }
@@ -58,7 +58,7 @@ export class LeavesController {
   getMe(
     @Query() filterDto: GetLeavesFilterDto,
     @CurrentUser() currentUser: User,
-    @FullUrl() fullUrl: string,
+    @RequestUrl() fullUrl: string,
   ): Promise<Pagination<Leave>> {
     return this.leavesService.getMe(currentUser.id, fullUrl, filterDto);
   }

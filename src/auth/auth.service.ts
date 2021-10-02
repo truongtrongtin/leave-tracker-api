@@ -1,41 +1,78 @@
 import { wrap } from '@mikro-orm/core';
+import { MailerService } from '@nestjs-modules/mailer';
 import { HttpService } from '@nestjs/axios';
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { google } from 'googleapis';
+import { Environment } from '../configs/env.validate';
 import { User } from '../users/user.entity';
 import { UsersService } from '../users/users.service';
+import { SignUpDto } from './dto/sign-up.dto';
 
 @Injectable()
 export class AuthService {
   constructor(
-    private readonly httpService: HttpService,
     private readonly jwtService: JwtService,
-    private readonly userService: UsersService,
+    private readonly usersService: UsersService,
     private readonly configService: ConfigService,
+    private readonly httpService: HttpService,
+    private readonly mailerService: MailerService,
   ) {}
   private oauth2Client = new google.auth.OAuth2();
 
-  async generateAccessToken(user: User): Promise<string> {
+  signup(signUpDto: SignUpDto): Promise<User> {
+    return this.usersService.create(signUpDto);
+  }
+
+  async getAccessCookie(user: User): Promise<string> {
     const tokenPayload = wrap(user).toObject();
-    return this.jwtService.sign(tokenPayload, {
+    const accessToken = this.jwtService.sign(tokenPayload, {
       secret: this.configService.get('JWT_ACCESS_TOKEN_SECRET'),
       expiresIn: `${this.configService.get(
         'JWT_ACCESS_TOKEN_EXPIRATION_TIME',
       )}s`,
     });
+
+    return `Authentication=${accessToken}; HttpOnly; Path=/; Max-Age=${this.configService.get(
+      'JWT_ACCESS_TOKEN_EXPIRATION_TIME',
+    )} ${
+      this.configService.get('NODE_ENV') === Environment.Production
+        ? ' Same-Site Secure'
+        : ''
+    }`;
   }
 
-  async generateRefreshToken(id: string): Promise<string> {
-    const payload = { id };
-    return this.jwtService.sign(payload, {
+  async getRefreshCookie(userId: string): Promise<string> {
+    const payload = { id: userId };
+    const refreshToken = this.jwtService.sign(payload, {
       secret: this.configService.get('JWT_REFRESH_TOKEN_SECRET'),
       expiresIn: `${this.configService.get(
         'JWT_REFRESH_TOKEN_EXPIRATION_TIME',
       )}s`,
     });
+    await this.usersService.saveRefreshToken(refreshToken, userId);
+
+    return `Refresh=${refreshToken}; HttpOnly; Path=/; Max-Age=${this.configService.get(
+      'JWT_REFRESH_TOKEN_EXPIRATION_TIME',
+    )} ${
+      this.configService.get('NODE_ENV') === Environment.Production
+        ? ' Same-Site Secure'
+        : ''
+    }`;
+  }
+
+  async getCookiesForLogOut(userId: string): Promise<string[]> {
+    await this.usersService.removeRefreshToken(userId);
+    return [
+      'Authentication=; Path=/; Max-Age=0',
+      'Refresh=; Path=/; Max-Age=0',
+    ];
   }
 
   verifyAccessToken(token: string): User & { iat: string; exp: string } {
@@ -48,7 +85,7 @@ export class AuthService {
     const payload = this.jwtService.verify(token, {
       secret: this.configService.get('JWT_REFRESH_TOKEN_SECRET'),
     });
-    const user = await this.userService.findById(payload.id);
+    const user = await this.usersService.findById(payload.id);
     if (!user.hashedRefreshToken) {
       throw new BadRequestException('Hashed refresh token not found');
     }
@@ -87,5 +124,24 @@ export class AuthService {
     // );
 
     return data;
+  }
+
+  async getUserByGoogleEmail(code: string): Promise<User> {
+    const googleUser = await this.getGoogleUser(code);
+    if (
+      !googleUser.email ||
+      !googleUser.email ||
+      !googleUser.given_name ||
+      !googleUser.family_name
+    )
+      throw new NotFoundException();
+
+    let user: User;
+    try {
+      user = await this.usersService.findByEmail(googleUser.email);
+    } catch (error) {
+      throw new NotFoundException();
+    }
+    return user;
   }
 }

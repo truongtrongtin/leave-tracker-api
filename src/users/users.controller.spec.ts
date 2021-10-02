@@ -1,4 +1,3 @@
-import { ConfigService } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
 import { AuthService } from '../auth/auth.service';
 import { User } from './user.entity';
@@ -22,7 +21,7 @@ const mockUsers = [
   }),
 ];
 
-const mockUserService = {
+const mockUsersService = {
   getAll: jest.fn().mockResolvedValue(mockUsers),
   findByEmail: jest.fn().mockImplementation((email: string) => {
     return Promise.resolve(mockUsers.find((user) => user.email === email));
@@ -39,14 +38,10 @@ describe('UsersController', () => {
       providers: [
         {
           provide: UsersService,
-          useValue: mockUserService,
+          useValue: mockUsersService,
         },
         {
           provide: AuthService,
-          useValue: {},
-        },
-        {
-          provide: ConfigService,
           useValue: {},
         },
       ],

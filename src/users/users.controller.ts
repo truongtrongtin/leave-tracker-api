@@ -8,11 +8,9 @@ import {
   Res,
   UseGuards,
 } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger';
 import { FastifyReply, FastifyRequest } from 'fastify';
 import { AuthService } from '../auth/auth.service';
-import { Environment } from '../configs/env.validate';
 import { CurrentUser } from '../decorators/current-user.decorator';
 import { JwtAuthGuard } from '../guards/jwt-auth.guard';
 import { UpdateAvatarDto } from './dto/update-avatar.dto';
@@ -28,7 +26,6 @@ export class UsersController {
   constructor(
     private readonly usersService: UsersService,
     private readonly authService: AuthService,
-    private readonly configService: ConfigService,
   ) {}
 
   @Get()
@@ -54,32 +51,21 @@ export class UsersController {
   @Post('me/update')
   async updateInfo(
     @Body() updateUserDto: UpdateUserDto,
-    @CurrentUser() currentUser: User,
+    @CurrentUser() user: User,
     @Res({ passthrough: true }) reply: FastifyReply,
   ): Promise<User> {
-    const user = await this.usersService.update(currentUser.id, updateUserDto);
-    const accessToken = await this.authService.generateAccessToken(user);
-    reply.setCookie('Authentication', accessToken, {
-      path: '/',
-      httpOnly: true,
-      maxAge: this.configService.get('JWT_ACCESS_TOKEN_EXPIRATION_TIME'),
-      ...(this.configService.get('NODE_ENV') === Environment.Production && {
-        sameSite: 'none',
-        secure: true,
-      }),
-    });
-    return user;
+    const updatedUser = await this.usersService.update(user.id, updateUserDto);
+    const accessCookie = await this.authService.getAccessCookie(updatedUser);
+    reply.header('Set-Cookie', accessCookie);
+    return updatedUser;
   }
 
   @Post('me/updatePassword')
   async updatePassword(
     @Body() updatePasswordDto: UpdatePasswordDto,
-    @CurrentUser() currentUser: User,
+    @CurrentUser() user: User,
   ): Promise<User> {
-    return this.usersService.updatePassword(
-      currentUser.email,
-      updatePasswordDto,
-    );
+    return this.usersService.updatePassword(user.email, updatePasswordDto);
   }
 
   @Post('me/updateAvatar')
@@ -87,22 +73,14 @@ export class UsersController {
   @ApiBody({ type: UpdateAvatarDto })
   async updateAvatar(
     @Req() request: FastifyRequest,
-    @CurrentUser() currentUser: User,
+    @CurrentUser() user: User,
     @Res({ passthrough: true }) reply: FastifyReply,
   ): Promise<User> {
     const fileData = await request.file();
-    const user = await this.usersService.updateAvatar(fileData, currentUser.id);
-    const accessToken = await this.authService.generateAccessToken(user);
-    reply.setCookie('Authentication', accessToken, {
-      path: '/',
-      httpOnly: true,
-      maxAge: this.configService.get('JWT_ACCESS_TOKEN_EXPIRATION_TIME'),
-      ...(this.configService.get('NODE_ENV') === Environment.Production && {
-        sameSite: 'none',
-        secure: true,
-      }),
-    });
-    return user;
+    const updatedUser = await this.usersService.updateAvatar(fileData, user.id);
+    const accessCookie = await this.authService.getAccessCookie(updatedUser);
+    reply.header('Set-Cookie', accessCookie);
+    return updatedUser;
   }
 
   @Post(':id/delete')
