@@ -24,9 +24,6 @@ class EnvironmentVariables {
   PORT: number;
 
   @IsString()
-  CLIENT_URL: string;
-
-  @IsString()
   DATABASE_NAME: string;
 
   @IsString()

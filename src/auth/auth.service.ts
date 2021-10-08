@@ -97,7 +97,7 @@ export class AuthService {
     return user;
   }
 
-  getGoogleAuthURL(callbackUrl: string): string {
+  getGoogleAuthURL(callbackUrl: string, intendedUrl: string): string {
     this.oauth2Client = new google.auth.OAuth2(
       this.configService.get('GOOGLE_OAUTH2_CLIENT_ID'),
       this.configService.get('GOOGLE_OAUTH2_CLIENT_SECRET'),
@@ -106,6 +106,7 @@ export class AuthService {
     return this.oauth2Client.generateAuthUrl({
       access_type: 'offline',
       scope: ['profile', 'email'],
+      state: intendedUrl,
     });
   }
 
