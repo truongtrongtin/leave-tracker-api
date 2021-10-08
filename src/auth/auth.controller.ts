@@ -4,14 +4,13 @@ import {
   Get,
   Post,
   Query,
+  Req,
   Res,
   UseGuards,
 } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { ApiConsumes, ApiTags } from '@nestjs/swagger';
-import { FastifyReply } from 'fastify';
+import { FastifyReply, FastifyRequest } from 'fastify';
 import { CurrentUser } from '../decorators/current-user.decorator';
-import { RequestUrl } from '../decorators/request-url.decorator';
 import { JwtAuthGuard } from '../guards/jwt-auth.guard';
 import { JwtRefreshGuard } from '../guards/jwt-refresh.guard';
 import { LocalGuard } from '../guards/local.guard';
@@ -23,10 +22,7 @@ import { SignUpDto } from './dto/sign-up.dto';
 @Controller('auth')
 @ApiTags('auth')
 export class AuthController {
-  constructor(
-    private readonly authService: AuthService,
-    private readonly configService: ConfigService,
-  ) {}
+  constructor(private readonly authService: AuthService) {}
 
   @Post('signup')
   async signUp(
@@ -79,19 +75,30 @@ export class AuthController {
   }
 
   @Get('google')
-  generateGoogleAuthURL(@Res() reply: FastifyReply, @RequestUrl() url: string) {
-    const googleAuthUrl = this.authService.getGoogleAuthURL(`${url}/callback`);
+  generateGoogleAuthURL(
+    @Query('intended_url') intendedUrl: string,
+    @Req() request: FastifyRequest,
+    @Res() reply: FastifyReply,
+  ) {
+    const googleAuthUrl = this.authService.getGoogleAuthURL(
+      `${request.protocol}://${request.hostname}/auth/google/callback`,
+      intendedUrl,
+    );
     reply.status(302).redirect(googleAuthUrl); // consent screen
   }
 
   @Get('google/callback')
-  async googleAuth(@Query('code') code: string, @Res() reply: FastifyReply) {
+  async googleAuth(
+    @Query('code') code: string,
+    @Query('state') intendedUrl: string,
+    @Res() reply: FastifyReply,
+  ) {
     const user = await this.authService.getUserByGoogleEmail(code);
     const accessCookie = await this.authService.getAccessCookie(user);
     const refreshCookie = await this.authService.getRefreshCookie(user.id);
     reply
       .header('Set-Cookie', [accessCookie, refreshCookie])
       .status(302)
-      .redirect(this.configService.get('CLIENT_URL'));
+      .redirect(intendedUrl);
   }
 }
