@@ -16,7 +16,7 @@ export class AppService {
   }
 
   @Cron('0 0 0 * * *') // everyday
-  async fetchAndCacheHolidays() {
+  async fetchHolidays() {
     const auth = new google.auth.GoogleAuth({
       keyFilename: this.configService.get<string>('GOOGLE_CALENDAR_KEY_PATH'),
       scopes: ['https://www.googleapis.com/auth/calendar.readonly'],
@@ -33,9 +33,49 @@ export class AppService {
     return holidays;
   }
 
+  // async getGoogleAccessTokenNoLib(keyFilename: string) {
+  //   const fileJson = fs.readFileSync(keyFilename, 'utf8');
+  //   const fileData = JSON.parse(fileJson);
+  //   console.log('fileData', fileData);
+  //   const jwt = this.jwtService.sign(
+  //     { scope: 'https://www.googleapis.com/auth/calendar.readonly' },
+  //     {
+  //       algorithm: 'RS256',
+  //       issuer: fileData.client_email,
+  //       audience: fileData.token_uri,
+  //       expiresIn: '1h',
+  //       privateKey: fileData.private_key,
+  //     },
+  //   );
+  //   console.log('jwt', jwt);
+  //   const { data } = await lastValueFrom(
+  //     this.httpService.post('https://oauth2.googleapis.com/token', {
+  //       grant_type: 'urn:ietf:params:oauth:grant-type:jwt-bearer',
+  //       assertion: jwt,
+  //     }),
+  //   );
+  //   return data.access_token;
+  // }
+
+  // async fetchHolidaysNoLib() {
+  //   const accessToken = await this.getGoogleAccessToken(
+  //     this.configService.get<string>('GOOGLE_CALENDAR_KEY_PATH'),
+  //   );
+  //   const calendarId = encodeURIComponent(
+  //     'en.vietnamese#holiday@group.v.calendar.google.com',
+  //   );
+  //   const { data: publicHoliday } = await lastValueFrom(
+  //     this.httpService.get(
+  //       `https://www.googleapis.com/calendar/v3/calendars/${calendarId}/events`,
+  //       { headers: { Authorization: `Bearer ${accessToken}` } },
+  //     ),
+  //   );
+  //   return publicHoliday.items;
+  // }
+
   async getCachedHolidays() {
     const holidays = await this.cacheManager.get('holidays');
-    if (!holidays) return this.fetchAndCacheHolidays();
+    if (!holidays) return this.fetchHolidays();
     return holidays;
   }
 }
