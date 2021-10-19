@@ -76,21 +76,19 @@ export class AuthController {
 
   @Get('google')
   generateGoogleAuthURL(
-    @Query('intended_url') intendedUrl: string,
+    @Query('intended_url') state: string,
     @Req() request: FastifyRequest,
     @Res() reply: FastifyReply,
   ) {
-    const googleAuthUrl = this.authService.getGoogleAuthURL(
-      `${request.protocol}://${request.hostname}/auth/google/callback`,
-      intendedUrl,
-    );
+    const redirectUri = `${request.protocol}://${request.hostname}/auth/google/callback`;
+    const googleAuthUrl = this.authService.getGoogleAuthUrl(redirectUri, state);
     reply.status(302).redirect(googleAuthUrl); // consent screen
   }
 
   @Get('google/callback')
   async googleAuth(
     @Query('code') code: string,
-    @Query('state') intendedUrl: string,
+    @Query('state') state: string,
     @Res() reply: FastifyReply,
   ) {
     const user = await this.authService.getUserByGoogleEmail(code);
@@ -99,6 +97,34 @@ export class AuthController {
     reply
       .header('Set-Cookie', [accessCookie, refreshCookie])
       .status(302)
-      .redirect(intendedUrl);
+      .redirect(state);
+  }
+
+  @Get('github')
+  generateGithubAuthURL(
+    @Query('intended_url') state: string,
+    @Req() request: FastifyRequest,
+    @Res() reply: FastifyReply,
+  ) {
+    const redirectUri = `${request.protocol}://${request.hostname}/auth/github/callback`;
+    const githubAuthUrl = this.authService.getGithubAuthURL(redirectUri, state);
+    reply.status(302).redirect(githubAuthUrl); // consent screen
+  }
+
+  @Get('github/callback')
+  async githubAuth(
+    @Query('code') code: string,
+    @Query('state') state: string,
+    @Req() request: FastifyRequest,
+    @Res() reply: FastifyReply,
+  ) {
+    const redirectUri = `${request.protocol}://${request.hostname}/auth/github/callback`;
+    const user = await this.authService.getUserByGithubEmail(redirectUri, code);
+    const accessCookie = await this.authService.getAccessCookie(user);
+    const refreshCookie = await this.authService.getRefreshCookie(user.id);
+    reply
+      .header('Set-Cookie', [accessCookie, refreshCookie])
+      .status(302)
+      .redirect(state);
   }
 }

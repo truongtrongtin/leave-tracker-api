@@ -1,15 +1,12 @@
 import { wrap } from '@mikro-orm/core';
 import { MailerService } from '@nestjs-modules/mailer';
 import { HttpService } from '@nestjs/axios';
-import {
-  BadRequestException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { google } from 'googleapis';
+import { lastValueFrom } from 'rxjs';
 import { Environment } from '../configs/env.validate';
 import { User } from '../users/user.entity';
 import { UsersService } from '../users/users.service';
@@ -97,52 +94,84 @@ export class AuthService {
     return user;
   }
 
-  getGoogleAuthURL(callbackUrl: string, intendedUrl: string): string {
+  getGoogleAuthUrl(callbackUrl: string, intendedUrl: string): string {
     this.oauth2Client = new google.auth.OAuth2(
       this.configService.get('GOOGLE_OAUTH2_CLIENT_ID'),
       this.configService.get('GOOGLE_OAUTH2_CLIENT_SECRET'),
       callbackUrl,
     );
     return this.oauth2Client.generateAuthUrl({
-      access_type: 'offline',
-      scope: ['profile', 'email'],
+      scope: 'openid email',
       state: intendedUrl,
     });
   }
 
-  async getGoogleUser(code: string) {
+  async getUserByGoogleEmail(code: string): Promise<User> {
     const { tokens } = await this.oauth2Client.getToken(code);
-    this.oauth2Client.setCredentials(tokens);
-    const { data } = await google
-      .oauth2({ auth: this.oauth2Client, version: 'v2' })
-      .userinfo.get();
-
-    // alternative way
-    // const { data } = await lastValueFrom(
-    //   this.httpService.get(
-    //     `https://www.googleapis.com/oauth2/v2/userinfo?access_token=${tokens.access_token}`,
-    //   ),
-    // );
-
-    return data;
+    const userInfo = this.jwtService.decode(tokens['id_token']);
+    return this.usersService.findByEmail(userInfo['email']);
   }
 
-  async getUserByGoogleEmail(code: string): Promise<User> {
-    const googleUser = await this.getGoogleUser(code);
-    if (
-      !googleUser.email ||
-      !googleUser.email ||
-      !googleUser.given_name ||
-      !googleUser.family_name
-    )
-      throw new NotFoundException();
+  // getGoogleAuthUrlNoLib(redirectUri: string, state: string) {
+  //   const query = new URLSearchParams({
+  //     client_id: this.configService.get('GOOGLE_OAUTH2_CLIENT_ID'),
+  //     response_type: 'code',
+  //     scope: 'openid email',
+  //     state,
+  //     redirect_uri: redirectUri,
+  //   }).toString();
+  //   return `https://accounts.google.com/o/oauth2/v2/auth?${query}`;
+  // }
 
-    let user: User;
-    try {
-      user = await this.usersService.findByEmail(googleUser.email);
-    } catch (error) {
-      throw new NotFoundException();
-    }
-    return user;
+  // async getUserByGoogleEmailNoLib(redirectUri: string, code: string) {
+  //   const { data: tokens } = await lastValueFrom(
+  //     this.httpService.post('https://oauth2.googleapis.com/token', {
+  //       code,
+  //       client_id: this.configService.get('GOOGLE_OAUTH2_CLIENT_ID'),
+  //       client_secret: this.configService.get('GOOGLE_OAUTH2_CLIENT_SECRET'),
+  //       grant_type: 'authorization_code',
+  //       redirect_uri: redirectUri,
+  //     }),
+  //   );
+  //   const userInfo = this.jwtService.decode(tokens['id_token']);
+  //   return this.usersService.findByEmail(userInfo['email']);
+  // }
+
+  getGithubAuthURL(redirectUri: string, state: string): string {
+    const query = new URLSearchParams({
+      client_id: this.configService.get('GITHUB_OAUTH2_CLIENT_ID'),
+      scope: 'read:user',
+      state,
+      redirect_uri: redirectUri,
+    }).toString();
+    return `https://github.com/login/oauth/authorize?${query}`;
+  }
+
+  async getGithubAccessToken(redirectUri: string, code: string) {
+    const { data } = await lastValueFrom(
+      this.httpService.post(
+        'https://github.com/login/oauth/access_token',
+        {
+          code,
+          client_id: this.configService.get('GITHUB_OAUTH2_CLIENT_ID'),
+          client_secret: this.configService.get('GITHUB_OAUTH2_CLIENT_SECRET'),
+          redirect_uri: redirectUri,
+        },
+        { headers: { Accept: 'application/json' } },
+      ),
+    );
+    return data['access_token'];
+  }
+
+  async getUserByGithubEmail(redirectUri: string, code: string) {
+    const accessToken = await this.getGithubAccessToken(redirectUri, code);
+    const { data: githubUser } = await lastValueFrom(
+      this.httpService.get('https://api.github.com/user', {
+        headers: {
+          Authorization: `token ${accessToken}`,
+        },
+      }),
+    );
+    return this.usersService.findByEmail(githubUser['email']);
   }
 }
