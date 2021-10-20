@@ -82,7 +82,7 @@ export class AuthController {
   ) {
     const redirectUri = `${request.protocol}://${request.hostname}/auth/google/callback`;
     const googleAuthUrl = this.authService.getGoogleAuthUrl(redirectUri, state);
-    reply.status(302).redirect(googleAuthUrl); // consent screen
+    reply.status(302).redirect(googleAuthUrl);
   }
 
   @Get('google/callback')
@@ -108,7 +108,7 @@ export class AuthController {
   ) {
     const redirectUri = `${request.protocol}://${request.hostname}/auth/github/callback`;
     const githubAuthUrl = this.authService.getGithubAuthURL(redirectUri, state);
-    reply.status(302).redirect(githubAuthUrl); // consent screen
+    reply.status(302).redirect(githubAuthUrl);
   }
 
   @Get('github/callback')
@@ -120,6 +120,47 @@ export class AuthController {
   ) {
     const redirectUri = `${request.protocol}://${request.hostname}/auth/github/callback`;
     const user = await this.authService.getUserByGithubEmail(redirectUri, code);
+    const accessCookie = await this.authService.getAccessCookie(user);
+    const refreshCookie = await this.authService.getRefreshCookie(user.id);
+    reply
+      .header('Set-Cookie', [accessCookie, refreshCookie])
+      .status(302)
+      .redirect(state);
+  }
+
+  @Get('facebook')
+  generateFacebookAuthURL(
+    @Query('intended_url') state: string,
+    @Req() request: FastifyRequest,
+    @Res() reply: FastifyReply,
+  ) {
+    const redirectUri = `${request.protocol}://${request.hostname}/auth/facebook/callback`;
+    const facebookAuthUrl = this.authService.getFacebookAuthURL(
+      redirectUri,
+      state,
+    );
+    reply.status(302).redirect(facebookAuthUrl);
+  }
+
+  @Get('facebook/callback')
+  async facebookAuth(
+    @Query('code') code: string,
+    @Query('state') state: string,
+    @Query('error') error: string,
+    @Req() request: FastifyRequest,
+    @Res() reply: FastifyReply,
+  ) {
+    const baseUrl = new URL(state).origin;
+    if (error) reply.status(302).redirect(`${baseUrl}/login`);
+    const redirectUri = `${request.protocol}://${request.hostname}/auth/facebook/callback`;
+    let user: User;
+    try {
+      user = await this.authService.getUserByFacebookEmail(redirectUri, code);
+    } catch (error) {
+      return reply
+        .status(302)
+        .redirect(`${baseUrl}/login?error=${error.message}`);
+    }
     const accessCookie = await this.authService.getAccessCookie(user);
     const refreshCookie = await this.authService.getRefreshCookie(user.id);
     reply

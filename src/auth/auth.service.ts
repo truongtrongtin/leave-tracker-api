@@ -1,7 +1,11 @@
 import { wrap } from '@mikro-orm/core';
 import { MailerService } from '@nestjs-modules/mailer';
 import { HttpService } from '@nestjs/axios';
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
@@ -168,10 +172,53 @@ export class AuthService {
     const { data: githubUser } = await lastValueFrom(
       this.httpService.get('https://api.github.com/user', {
         headers: {
-          Authorization: `token ${accessToken}`,
+          Authorization: `Token ${accessToken}`,
         },
       }),
     );
     return this.usersService.findByEmail(githubUser['email']);
+  }
+
+  getFacebookAuthURL(redirectUri: string, state: string): string {
+    const query = new URLSearchParams({
+      client_id: this.configService.get('FACEBOOK_OAUTH2_APP_ID'),
+      redirect_uri: redirectUri,
+      state,
+      scope: 'email',
+      auth_type: 'rerequest',
+    }).toString();
+    return `https://www.facebook.com/dialog/oauth?${query}`;
+  }
+
+  async getFacebookAccessToken(redirectUri: string, code: string) {
+    const query = new URLSearchParams({
+      client_id: this.configService.get('FACEBOOK_OAUTH2_APP_ID'),
+      client_secret: this.configService.get('FACEBOOK_OAUTH2_APP_SECRET'),
+      code,
+      redirect_uri: redirectUri,
+      scope: 'email',
+    }).toString();
+    const { data } = await lastValueFrom(
+      this.httpService.get(
+        `https://graph.facebook.com/oauth/access_token?${query}`,
+      ),
+    );
+    console.log('data', data);
+    return data['access_token'];
+  }
+
+  async getUserByFacebookEmail(redirectUri: string, code: string) {
+    const accessToken = await this.getFacebookAccessToken(redirectUri, code);
+    const { data: facebookUser } = await lastValueFrom(
+      this.httpService.get('https://graph.facebook.com/me?fields=email', {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      }),
+    );
+    if (!facebookUser['email']) {
+      throw new NotFoundException('email permission required');
+    }
+    return this.usersService.findByEmail(facebookUser['email']);
   }
 }
