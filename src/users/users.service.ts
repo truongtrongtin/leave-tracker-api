@@ -41,7 +41,7 @@ export class UsersService {
   async findByEmail(email: string): Promise<User> {
     const user = await this.userRepository.findOne({ email });
     if (!user) {
-      throw new NotFoundException(`user is not found`);
+      throw new NotFoundException(`user_not_found`);
     }
     return user;
   }
@@ -49,7 +49,7 @@ export class UsersService {
   async findById(id: string): Promise<User> {
     const user = await this.userRepository.findOne(id);
     if (!user) {
-      throw new NotFoundException(`user is not found`);
+      throw new NotFoundException(`user_not_found`);
     }
     return user;
   }
@@ -58,7 +58,7 @@ export class UsersService {
     const user = await this.findByEmail(email);
     const isRightPassword = await bcrypt.compare(password, user.password);
     if (!isRightPassword) {
-      throw new BadRequestException(`wrong password`);
+      throw new BadRequestException('password_mismatch');
     }
     return user;
   }
@@ -66,7 +66,7 @@ export class UsersService {
   async create(signUpDto: SignUpDto): Promise<User> {
     const exists = await this.userRepository.count({ email: signUpDto.email });
     if (exists > 0) {
-      throw new BadRequestException('email existed');
+      throw new BadRequestException('user_email_existed');
     }
     // const timezone = (
     //   await this.httpService.get(`http://ip-api.com/json/${ip}`).toPromise()

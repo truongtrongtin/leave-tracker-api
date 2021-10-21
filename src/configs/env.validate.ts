@@ -61,6 +61,18 @@ class EnvironmentVariables {
 
   @IsString()
   GOOGLE_OAUTH2_CLIENT_SECRET: string;
+
+  @IsString()
+  GITHUB_OAUTH2_CLIENT_ID: string;
+
+  @IsString()
+  GITHUB_OAUTH2_CLIENT_SECRET: string;
+
+  @IsString()
+  FACEBOOK_OAUTH2_APP_ID: string;
+
+  @IsString()
+  FACEBOOK_OAUTH2_APP_SECRET: string;
 }
 
 export function validate(config: Record<string, unknown>) {
