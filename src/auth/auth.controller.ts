@@ -91,7 +91,15 @@ export class AuthController {
     @Query('state') state: string,
     @Res() reply: FastifyReply,
   ) {
-    const user = await this.authService.getUserByGoogleEmail(code);
+    const clientOriginUrl = new URL(state).origin;
+    let user: User;
+    try {
+      user = await this.authService.getUserByGoogleEmail(code);
+    } catch (error) {
+      return reply
+        .status(302)
+        .redirect(`${clientOriginUrl}/login?error=${error.message}`);
+    }
     const accessCookie = await this.authService.getAccessCookie(user);
     const refreshCookie = await this.authService.getRefreshCookie(user.id);
     reply
@@ -115,9 +123,12 @@ export class AuthController {
   async githubAuth(
     @Query('code') code: string,
     @Query('state') state: string,
+    @Query('error') error: string,
     @Req() request: FastifyRequest,
     @Res() reply: FastifyReply,
   ) {
+    const clientOriginUrl = new URL(state).origin;
+    if (error) return reply.status(302).redirect(`${clientOriginUrl}/login`);
     const redirectUri = `${request.protocol}://${request.hostname}/auth/github/callback`;
     const user = await this.authService.getUserByGithubEmail(redirectUri, code);
     const accessCookie = await this.authService.getAccessCookie(user);
@@ -150,8 +161,8 @@ export class AuthController {
     @Req() request: FastifyRequest,
     @Res() reply: FastifyReply,
   ) {
-    const baseUrl = new URL(state).origin;
-    if (error) reply.status(302).redirect(`${baseUrl}/login`);
+    const clientOriginUrl = new URL(state).origin;
+    if (error) return reply.status(302).redirect(`${clientOriginUrl}/login`);
     const redirectUri = `${request.protocol}://${request.hostname}/auth/facebook/callback`;
     let user: User;
     try {
@@ -159,7 +170,7 @@ export class AuthController {
     } catch (error) {
       return reply
         .status(302)
-        .redirect(`${baseUrl}/login?error=${error.message}`);
+        .redirect(`${clientOriginUrl}/login?error=${error.message}`);
     }
     const accessCookie = await this.authService.getAccessCookie(user);
     const refreshCookie = await this.authService.getRefreshCookie(user.id);

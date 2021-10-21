@@ -88,7 +88,7 @@ export class AuthService {
     });
     const user = await this.usersService.findById(payload.id);
     if (!user.hashedRefreshToken) {
-      throw new BadRequestException('Hashed refresh token not found');
+      throw new BadRequestException('refresh_token_not_found');
     }
     const isRefreshTokenMatching = await bcrypt.compare(
       token,
@@ -203,7 +203,6 @@ export class AuthService {
         `https://graph.facebook.com/oauth/access_token?${query}`,
       ),
     );
-    console.log('data', data);
     return data['access_token'];
   }
 
@@ -217,7 +216,7 @@ export class AuthService {
       }),
     );
     if (!facebookUser['email']) {
-      throw new NotFoundException('email permission required');
+      throw new NotFoundException('email_permission_required');
     }
     return this.usersService.findByEmail(facebookUser['email']);
   }
