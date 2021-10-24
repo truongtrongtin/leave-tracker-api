@@ -16,12 +16,14 @@ export class LeavesService {
   constructor(
     @InjectRepository(Leave)
     private readonly leaveRepository: EntityRepository<Leave>,
+    @InjectRepository(User)
+    private readonly userRepository: EntityRepository<User>,
   ) {}
 
   async create(
     startAt: Date,
     endAt: Date,
-    user: User,
+    userId: string,
     reason?: string,
   ): Promise<Leave> {
     const max = new Date();
@@ -31,13 +33,14 @@ export class LeavesService {
     }
     const count = await this.leaveRepository.count({
       $or: [{ startAt }, { endAt }],
-      user,
+      user: userId,
     });
     if (count) {
       throw new BadRequestException(
         "you've already had a leave on this day, please edit it instead",
       );
     }
+    const user = await this.userRepository.findOne(userId);
     const leave = new Leave({ startAt, endAt, reason, user });
     await this.leaveRepository.persistAndFlush(leave);
     await this.leaveRepository.populate(leave, ['user']);
@@ -53,12 +56,19 @@ export class LeavesService {
       page = 1,
       orderBy = 'createdAt',
       order = QueryOrder.DESC,
+      from,
+      to,
       reason,
       userId,
     } = filterDto;
 
     const [leaves, count] = await this.leaveRepository.findAndCount(
-      { ...(userId && { user: userId }), ...(reason && { reason }) },
+      {
+        ...(userId && { user: userId }),
+        ...(reason && { reason }),
+        ...(from && { startAt: { $gte: from } }),
+        ...(to && { endAt: { $lte: to } }),
+      },
       {
         orderBy: { [orderBy]: order },
         limit: limit,

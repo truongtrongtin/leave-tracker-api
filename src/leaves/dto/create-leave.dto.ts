@@ -15,6 +15,6 @@ export class CreateLeaveDto {
   @IsOptional()
   reason?: string;
 
-  @IsOptional()
-  userId?: string;
+  @IsNotEmpty()
+  userId: string;
 }
