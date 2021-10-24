@@ -32,18 +32,9 @@ export class LeavesController {
   ) {}
 
   @Post('add')
-  async create(
-    @Body() createLeaveDto: CreateLeaveDto,
-    @CurrentUser() currentUser: User,
-  ): Promise<Leave> {
+  async create(@Body() createLeaveDto: CreateLeaveDto): Promise<Leave> {
     const { startAt, endAt, reason, userId } = createLeaveDto;
-    let user;
-    if (currentUser.role === Role.ADMIN && userId) {
-      user = await this.usersService.findById(userId);
-    } else {
-      user = currentUser;
-    }
-    return this.leavesService.create(startAt, endAt, user, reason);
+    return this.leavesService.create(startAt, endAt, userId, reason);
   }
 
   @Get()
@@ -76,7 +67,7 @@ export class LeavesController {
     @Body() updateLeaveDto: UpdateLeaveDto,
   ): Promise<Leave> {
     const { startAt, endAt, reason, userId } = updateLeaveDto;
-    let newLeaveUser;
+    let newLeaveUser: User;
     if (currentUser.role === Role.ADMIN && userId) {
       newLeaveUser = await this.usersService.findById(userId);
     } else {

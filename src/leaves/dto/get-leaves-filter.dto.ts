@@ -1,5 +1,6 @@
 import { QueryOrder } from '@mikro-orm/core';
-import { IsEnum, IsOptional } from 'class-validator';
+import { Type } from 'class-transformer';
+import { IsDate, IsEnum, IsOptional } from 'class-validator';
 
 export class GetLeavesFilterDto {
   @IsOptional()
@@ -20,4 +21,14 @@ export class GetLeavesFilterDto {
 
   @IsOptional()
   userId?: string;
+
+  @Type(() => Date)
+  @IsOptional()
+  @IsDate()
+  from?: Date;
+
+  @Type(() => Date)
+  @IsOptional()
+  @IsDate()
+  to?: Date;
 }
