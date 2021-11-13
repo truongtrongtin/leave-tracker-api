@@ -17,6 +17,8 @@ import { LocalGuard } from '../guards/local.guard';
 import { User } from '../users/user.entity';
 import { AuthService } from './auth.service';
 import { LogInDto } from './dto/log-in.dto';
+import { RequestPasswordResetDto } from './dto/request-password-reset.dto';
+import { ResetPasswordDto } from './dto/reset-password.dto';
 import { SignUpDto } from './dto/sign-up.dto';
 
 @Controller('auth')
@@ -72,6 +74,20 @@ export class AuthController {
     const accessCookie = await this.authService.getAccessCookie(user);
     reply.header('Set-Cookie', accessCookie);
     return user;
+  }
+
+  @Post('requestPasswordReset')
+  requestPasswordReset(
+    @Body() requestPasswordResetDto: RequestPasswordResetDto,
+  ) {
+    const { email, resetPath } = requestPasswordResetDto;
+    return this.authService.requestPasswordReset(email, resetPath);
+  }
+
+  @Post('resetPassword')
+  async resetPassword(@Body() resetPasswordDto: ResetPasswordDto) {
+    const { token, newPassword } = resetPasswordDto;
+    return this.authService.resetPassword(token, newPassword);
   }
 
   @Get('google')

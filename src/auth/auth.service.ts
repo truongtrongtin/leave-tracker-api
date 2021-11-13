@@ -9,6 +9,7 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
+import * as crypto from 'crypto';
 import { google } from 'googleapis';
 import { lastValueFrom } from 'rxjs';
 import { Environment } from '../configs/env.validate';
@@ -219,5 +220,39 @@ export class AuthService {
       throw new NotFoundException('email_permission_required');
     }
     return this.usersService.findByEmail(facebookUser['email']);
+  }
+
+  async requestPasswordReset(email: string, resetPath: string) {
+    const user = await this.usersService.findByEmail(email);
+    const timestamp = new Date().toISOString();
+    const encodedUserId = Buffer.from(user.id).toString('hex');
+    const encodedTime = Buffer.from(timestamp).toString('hex');
+    const stringToHash = `${timestamp}${user.id}${user.email}${user.password}`;
+    const hash = crypto.createHash('sha256').update(stringToHash).digest('hex');
+    return this.mailerService.sendMail({
+      to: email,
+      subject: 'Password reset request',
+      template: './forgot',
+      context: {
+        resetLink: `${resetPath}?token=${encodedUserId}-${encodedTime}-${hash}`,
+      },
+    });
+  }
+
+  async resetPassword(token: string, newPassword: string) {
+    const tokenParts = token.split('-');
+    const userId = Buffer.from(tokenParts[0], 'hex').toString();
+    const timestamp = Buffer.from(tokenParts[1], 'hex').toString();
+
+    const date = new Date(timestamp);
+    date.setDate(date.getDate() + 1);
+    if (date < new Date()) throw new BadRequestException('expired_token');
+
+    const user = await this.usersService.findById(userId);
+    const stringToHash = `${timestamp}${user.id}${user.email}${user.password}`;
+    const hash = crypto.createHash('sha256').update(stringToHash).digest('hex');
+    if (hash !== tokenParts[2]) throw new BadRequestException('invalid_token');
+
+    return this.usersService.resetPassword(user.id, newPassword);
   }
 }

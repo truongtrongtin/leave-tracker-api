@@ -106,6 +106,14 @@ export class UsersService {
     return user;
   }
 
+  async resetPassword(id: string, newPassword: string) {
+    const user = await this.findById(id);
+    const password = await bcrypt.hash(newPassword, 10);
+    user.password = password;
+    await this.userRepository.flush();
+    return user;
+  }
+
   async deleteOneById(id: string): Promise<void> {
     // hard delete
     // const user = await this.userRepository.findOneOrFail(id, ['leaves']);
