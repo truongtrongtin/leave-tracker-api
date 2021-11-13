@@ -41,6 +41,7 @@ credentials/*
 
 # CACHE
 cache/*
+.eslintcache
 
 # ADMINER PLUGINS
 plugins-enabled/*
