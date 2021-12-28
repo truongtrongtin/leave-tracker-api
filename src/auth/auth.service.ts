@@ -43,9 +43,9 @@ export class AuthService {
 
     return `Authentication=${accessToken}; HttpOnly; Path=/; Max-Age=${this.configService.get(
       'JWT_ACCESS_TOKEN_EXPIRATION_TIME',
-    )} ${
+    )}; ${
       this.configService.get('NODE_ENV') === Environment.Production
-        ? ' Same-Site Secure'
+        ? 'SameSite=None; Secure'
         : ''
     }`;
   }
@@ -62,18 +62,22 @@ export class AuthService {
 
     return `Refresh=${refreshToken}; HttpOnly; Path=/; Max-Age=${this.configService.get(
       'JWT_REFRESH_TOKEN_EXPIRATION_TIME',
-    )} ${
+    )}; ${
       this.configService.get('NODE_ENV') === Environment.Production
-        ? ' Same-Site Secure'
+        ? 'SameSite=None; Secure'
         : ''
     }`;
   }
 
   async getCookiesForLogOut(userId: string): Promise<string[]> {
     await this.usersService.removeRefreshToken(userId);
+    const sameSiteSecure =
+      this.configService.get('NODE_ENV') === Environment.Production
+        ? 'SameSite=None; Secure'
+        : '';
     return [
-      'Authentication=; Path=/; Max-Age=0',
-      'Refresh=; Path=/; Max-Age=0',
+      `Authentication=; Path=/; Max-Age=0; ${sameSiteSecure}`,
+      `Refresh=; Path=/; Max-Age=0; ${sameSiteSecure}`,
     ];
   }
 
