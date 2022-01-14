@@ -92,12 +92,15 @@ export class AuthController {
 
   @Get('google')
   generateGoogleAuthURL(
-    @Query('intended_url') state: string,
+    @Query('intended_url') intendedUrl: string,
     @Req() request: FastifyRequest,
     @Res() reply: FastifyReply,
   ) {
     const redirectUri = `${request.protocol}://${request.hostname}/auth/google/callback`;
-    const googleAuthUrl = this.authService.getGoogleAuthUrl(redirectUri, state);
+    const googleAuthUrl = this.authService.getGoogleAuthUrl(
+      redirectUri,
+      intendedUrl,
+    );
     reply.status(302).redirect(googleAuthUrl);
   }
 
@@ -126,12 +129,15 @@ export class AuthController {
 
   @Get('github')
   generateGithubAuthURL(
-    @Query('intended_url') state: string,
+    @Query('intended_url') intendedUrl: string,
     @Req() request: FastifyRequest,
     @Res() reply: FastifyReply,
   ) {
     const redirectUri = `${request.protocol}://${request.hostname}/auth/github/callback`;
-    const githubAuthUrl = this.authService.getGithubAuthURL(redirectUri, state);
+    const githubAuthUrl = this.authService.getGithubAuthURL(
+      redirectUri,
+      intendedUrl,
+    );
     reply.status(302).redirect(githubAuthUrl);
   }
 
@@ -157,14 +163,14 @@ export class AuthController {
 
   @Get('facebook')
   generateFacebookAuthURL(
-    @Query('intended_url') state: string,
+    @Query('intended_url') intendedUrl: string,
     @Req() request: FastifyRequest,
     @Res() reply: FastifyReply,
   ) {
     const redirectUri = `${request.protocol}://${request.hostname}/auth/facebook/callback`;
     const facebookAuthUrl = this.authService.getFacebookAuthURL(
       redirectUri,
-      state,
+      intendedUrl,
     );
     reply.status(302).redirect(facebookAuthUrl);
   }
