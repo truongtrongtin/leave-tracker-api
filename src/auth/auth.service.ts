@@ -103,11 +103,11 @@ export class AuthService {
     return user;
   }
 
-  getGoogleAuthUrl(callbackUrl: string, intendedUrl: string): string {
+  getGoogleAuthUrl(redirectUri: string, intendedUrl: string): string {
     this.oauth2Client = new google.auth.OAuth2(
       this.configService.get('GOOGLE_OAUTH2_CLIENT_ID'),
       this.configService.get('GOOGLE_OAUTH2_CLIENT_SECRET'),
-      callbackUrl,
+      redirectUri,
     );
     return this.oauth2Client.generateAuthUrl({
       scope: 'openid email',
@@ -146,11 +146,11 @@ export class AuthService {
   //   return this.usersService.findByEmail(userInfo['email']);
   // }
 
-  getGithubAuthURL(redirectUri: string, state: string): string {
+  getGithubAuthURL(redirectUri: string, intendedUrl: string): string {
     const query = new URLSearchParams({
       client_id: this.configService.get('GITHUB_OAUTH2_CLIENT_ID'),
       scope: 'read:user',
-      state,
+      state: intendedUrl,
       redirect_uri: redirectUri,
     }).toString();
     return `https://github.com/login/oauth/authorize?${query}`;
@@ -184,11 +184,11 @@ export class AuthService {
     return this.usersService.findByEmail(githubUser['email']);
   }
 
-  getFacebookAuthURL(redirectUri: string, state: string): string {
+  getFacebookAuthURL(redirectUri: string, intendedUrl: string): string {
     const query = new URLSearchParams({
       client_id: this.configService.get('FACEBOOK_OAUTH2_APP_ID'),
       redirect_uri: redirectUri,
-      state,
+      state: intendedUrl,
       scope: 'email',
       auth_type: 'rerequest',
     }).toString();
