@@ -51,10 +51,7 @@ class EnvironmentVariables {
   BUCKET_NAME: string;
 
   @IsString()
-  GOOGLE_CALENDAR_KEY_PATH: string;
-
-  @IsString()
-  GOOGLE_STORAGE_KEY_PATH: string;
+  GOOGLE_APPLICATION_CREDENTIALS: string;
 
   @IsString()
   GOOGLE_OAUTH2_CLIENT_ID: string;

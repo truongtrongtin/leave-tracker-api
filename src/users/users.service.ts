@@ -133,9 +133,7 @@ export class UsersService {
   }
 
   async updateAvatar(fileData: MultipartFile, userId: string): Promise<User> {
-    const storage = new Storage({
-      keyFilename: this.configService.get('GOOGLE_STORAGE_KEY_PATH'),
-    });
+    const storage = new Storage();
     const bucket = storage.bucket(this.configService.get('BUCKET_NAME'));
     const user = await this.userRepository.findOneOrFail(userId);
 
