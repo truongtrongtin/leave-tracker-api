@@ -10,7 +10,10 @@ const mikroOrmConfig: Options = {
   dbName: process.env.DATABASE_NAME,
   password: process.env.DATABASE_PASSWORD,
   debug: true,
-  migrations: { path: 'src/migrations' },
+  migrations: {
+    path: 'dist/migrations',
+    pathTs: 'src/migrations',
+  },
 };
 
 export default mikroOrmConfig;
