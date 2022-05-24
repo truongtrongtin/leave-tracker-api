@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "description": "",
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=16.0.0"
   },
   "author": "",
   "private": true,
@@ -79,12 +79,12 @@
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-prettier": "^4.0.0",
     "husky": "^7.0.4",
-    "jest": "^28.0.3",
+    "jest": "^28.1.0",
     "lint-staged": "^12.4.1",
     "prettier": "^2.6.2",
     "rimraf": "^3.0.2",
     "supertest": "^6.2.3",
-    "ts-jest": "^27.1.4",
+    "ts-jest": "^28.0.3",
     "ts-loader": "^9.2.9",
     "ts-node": "^10.7.0",
     "tsconfig-paths": "^3.14.1",
@@ -149,6 +149,28 @@
     "configPaths": [
       "./src/mikro-orm.config.ts",
       "./dist/mikro-orm.config.js"
+    ]
+  },
+  "renovate": {
+    "extends": [
+      "config:base"
+    ],
+    "dependencyDashboard": false,
+    "separateMajorMinor": false,
+    "packageRules": [
+      {
+        "matchUpdateTypes": [
+          "patch",
+          "minor",
+          "pin",
+          "digest"
+        ],
+        "automerge": true,
+        "automergeType": "branch"
+      }
+    ],
+    "schedule": [
+      "every weekend"
     ]
   }
 }

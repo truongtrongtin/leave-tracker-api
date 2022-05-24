@@ -76,6 +76,8 @@ export class UsersController {
     @CurrentUser() user: User,
     @Res({ passthrough: true }) reply: FastifyReply,
   ): Promise<User> {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     const fileData = await request.file();
     const updatedUser = await this.usersService.updateAvatar(fileData, user.id);
     const accessCookie = await this.authService.getAccessCookie(updatedUser);
