@@ -159,18 +159,17 @@
     "separateMajorMinor": false,
     "packageRules": [
       {
-        "matchUpdateTypes": [
-          "patch",
-          "minor",
-          "pin",
-          "digest"
+        "matchPackagePatterns": [
+          "*"
         ],
+        "groupName": "all dependencies",
+        "groupSlug": "all",
         "automerge": true,
-        "automergeType": "branch"
+        "automergeType": "branch",
+        "schedule": [
+          "every weekend"
+        ]
       }
-    ],
-    "schedule": [
-      "every weekend"
     ]
   }
 }
