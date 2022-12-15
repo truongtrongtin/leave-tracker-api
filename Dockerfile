@@ -9,7 +9,7 @@ RUN npm run build
 FROM node:alpine AS production
 WORKDIR /app
 COPY package*.json ./
-RUN npm set-script prepare ""
+RUN npm pkg delete scripts.prepare
 RUN npm ci --production
 COPY --from=development /app/dist ./dist
 CMD ["node", "dist/main"]
