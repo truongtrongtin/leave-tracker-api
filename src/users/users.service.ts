@@ -10,7 +10,7 @@ import {
 import { ConfigService } from '@nestjs/config';
 import * as bcrypt from 'bcrypt';
 import * as crypto from 'crypto';
-import { MultipartFile } from 'fastify-multipart';
+import { MultipartFile } from '@fastify/multipart';
 // import * as stream from 'stream';
 // import * as util from 'util';
 import { SignUpDto } from '../auth/dto/sign-up.dto';

@@ -25,6 +25,9 @@
     "prepare": "husky install"
   },
   "dependencies": {
+    "@fastify/cookie": "8.3.0",
+    "@fastify/multipart": "7.4.0",
+    "@fastify/swagger": "8.3.1",
     "@google-cloud/storage": "6.9.2",
     "@mikro-orm/cli": "5.6.9",
     "@mikro-orm/core": "5.6.9",
@@ -47,9 +50,6 @@
     "cache-manager-fs-hash": "1.0.0",
     "class-transformer": "0.5.1",
     "class-validator": "0.14.0",
-    "fastify-cookie": "5.7.0",
-    "fastify-multipart": "5.4.0",
-    "fastify-swagger": "5.2.0",
     "googleapis": "111.0.0",
     "handlebars": "4.7.7",
     "nest-winston": "1.8.0",

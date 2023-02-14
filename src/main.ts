@@ -1,3 +1,5 @@
+import fastifyCookie from '@fastify/cookie';
+import fastifyMultipart from '@fastify/multipart';
 import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
@@ -7,8 +9,6 @@ import {
 } from '@nestjs/platform-fastify';
 import { WsAdapter } from '@nestjs/platform-ws';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import fastifyCookie from 'fastify-cookie';
-import fastifyMultipart from 'fastify-multipart';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
