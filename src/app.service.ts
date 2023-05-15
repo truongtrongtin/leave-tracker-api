@@ -1,7 +1,7 @@
 import { CACHE_MANAGER, Inject, Injectable } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
 import { Cache } from 'cache-manager';
-import { google } from 'googleapis';
+import { calendar_v3, google } from 'googleapis';
 
 @Injectable()
 export class AppService {
@@ -17,7 +17,9 @@ export class AppService {
       scopes: ['https://www.googleapis.com/auth/calendar.readonly'],
     });
     const authClient = await auth.getClient();
-    const calendar = google.calendar({ version: 'v3', auth: authClient });
+    const calendar = google.calendar({
+      auth: authClient,
+    } as calendar_v3.Options);
     const holidayResponse = await calendar.events.list({
       calendarId: 'en.vietnamese#holiday@group.v.calendar.google.com',
       singleEvents: true,
