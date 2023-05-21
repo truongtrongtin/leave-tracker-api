@@ -10,6 +10,6 @@ FROM node:alpine AS production
 WORKDIR /app
 COPY package*.json ./
 RUN npm pkg delete scripts.prepare
-RUN npm ci --production
+RUN npm ci --omit=dev
 COPY --from=development /app/dist ./dist
 CMD ["node", "dist/main"]
