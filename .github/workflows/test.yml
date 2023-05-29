@@ -85,19 +85,7 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           script: |
             cd ~/leave-tracker-api
-
-            docker run --rm \
-              -v /var/run/docker.sock:/var/run/docker.sock \
-              -v "$PWD:$PWD" \
-              -w="$PWD" \
-              docker/compose:1.29.2 pull -q leave-tracker-api
-
-            docker run --rm \
-              -v /var/run/docker.sock:/var/run/docker.sock \
-              -v "$PWD:$PWD" \
-              -w="$PWD" \
-              docker/compose:1.29.2 up -d
-
+            docker compose pull -q leave-tracker-api
+            docker compose up -d
             docker image prune -f
-
             docker exec leave-tracker-api node dist/migrate
