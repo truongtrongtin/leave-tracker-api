@@ -75,7 +75,7 @@
     }
   },
   "dependencies": {
-    "@fastify/cookie": "^8.3.0",
+    "@fastify/cookie": "^9.0.0",
     "@fastify/multipart": "^7.7.3",
     "@fastify/static": "^6.10.2",
     "@fastify/swagger": "^8.8.0",
