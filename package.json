@@ -76,7 +76,7 @@
   },
   "dependencies": {
     "@fastify/cookie": "^9.0.4",
-    "@fastify/multipart": "^7.7.3",
+    "@fastify/multipart": "^8.0.0",
     "@fastify/static": "^6.11.0",
     "@fastify/swagger": "^8.10.0",
     "@google-cloud/storage": "^7.1.0",
