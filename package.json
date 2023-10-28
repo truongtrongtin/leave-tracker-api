@@ -94,7 +94,7 @@
     "@nestjs/jwt": "^10.1.1",
     "@nestjs/platform-fastify": "^10.2.5",
     "@nestjs/platform-ws": "^10.2.5",
-    "@nestjs/schedule": "^3.0.3",
+    "@nestjs/schedule": "^4.0.0",
     "@nestjs/swagger": "^7.1.11",
     "@nestjs/websockets": "^10.2.5",
     "bcrypt": "^5.1.1",
